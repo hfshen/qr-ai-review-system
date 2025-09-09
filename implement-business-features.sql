@@ -1,6 +1,15 @@
 -- 비즈니스 기능 데이터베이스 스키마
 -- 구독모델, 화이트라벨, API마켓플레이스
 
+-- 0. updated_at 컬럼 자동 업데이트를 위한 트리거 함수
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = NOW();
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
 -- 1. 구독 플랜 테이블
 CREATE TABLE IF NOT EXISTS subscription_plans (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,

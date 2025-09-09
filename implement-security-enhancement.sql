@@ -1,6 +1,15 @@
 -- 보안 강화 시스템 데이터베이스 스키마
 -- 2FA, 레이트리미팅, 감사로그, 보안이벤트, IP차단
 
+-- 0. updated_at 컬럼 자동 업데이트를 위한 트리거 함수
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = NOW();
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
 -- 1. 2단계 인증 테이블
 CREATE TABLE IF NOT EXISTS two_factor_auth (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,

@@ -1,6 +1,15 @@
 -- 고급 분석 및 리포팅 시스템 데이터베이스 스키마
 -- 예측 분석, 사용자 정의 리포트, A/B 테스트, 고객 세그멘테이션
 
+-- 0. updated_at 컬럼 자동 업데이트를 위한 트리거 함수
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = NOW();
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
 -- 1. 사용자 정의 리포트 테이블
 CREATE TABLE IF NOT EXISTS custom_reports (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
