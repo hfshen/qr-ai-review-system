@@ -389,12 +389,15 @@ CREATE TRIGGER trigger_update_security_policies_updated_at
 -- two_factor_auth 테이블 RLS
 ALTER TABLE two_factor_auth ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can view their own 2FA settings" ON two_factor_auth;
 CREATE POLICY "Users can view their own 2FA settings" ON two_factor_auth
     FOR SELECT USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can update their own 2FA settings" ON two_factor_auth;
 CREATE POLICY "Users can update their own 2FA settings" ON two_factor_auth
     FOR UPDATE USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can insert their own 2FA settings" ON two_factor_auth;
 CREATE POLICY "Users can insert their own 2FA settings" ON two_factor_auth
     FOR INSERT WITH CHECK (auth.uid() = user_id);
 

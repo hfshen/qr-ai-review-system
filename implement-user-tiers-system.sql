@@ -148,6 +148,7 @@ DROP POLICY IF EXISTS "Everyone can view user tiers" ON user_tiers;
 CREATE POLICY "Everyone can view user tiers" ON user_tiers
     FOR SELECT USING (true);
 
+DROP POLICY IF EXISTS "Admins can manage user tiers" ON user_tiers;
 CREATE POLICY "Admins can manage user tiers" ON user_tiers
     FOR ALL USING (
         EXISTS (

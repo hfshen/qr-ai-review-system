@@ -257,26 +257,32 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- 17. 트리거 설정
+DROP TRIGGER IF EXISTS trigger_update_user_profile_sentiment ON sentiment_analysis;
 CREATE TRIGGER trigger_update_user_profile_sentiment
     AFTER INSERT ON sentiment_analysis
     FOR EACH ROW EXECUTE FUNCTION update_user_ai_profile();
 
+DROP TRIGGER IF EXISTS trigger_update_user_profile_quality ON review_quality_scores;
 CREATE TRIGGER trigger_update_user_profile_quality
     AFTER INSERT ON review_quality_scores
     FOR EACH ROW EXECUTE FUNCTION update_user_ai_profile();
 
+DROP TRIGGER IF EXISTS trigger_update_user_profile_personalized ON personalized_reviews;
 CREATE TRIGGER trigger_update_user_profile_personalized
     AFTER INSERT ON personalized_reviews
     FOR EACH ROW EXECUTE FUNCTION update_user_ai_profile();
 
+DROP TRIGGER IF EXISTS trigger_update_usage_stats_sentiment ON sentiment_analysis;
 CREATE TRIGGER trigger_update_usage_stats_sentiment
     AFTER INSERT ON sentiment_analysis
     FOR EACH ROW EXECUTE FUNCTION update_ai_usage_stats();
 
+DROP TRIGGER IF EXISTS trigger_update_usage_stats_quality ON review_quality_scores;
 CREATE TRIGGER trigger_update_usage_stats_quality
     AFTER INSERT ON review_quality_scores
     FOR EACH ROW EXECUTE FUNCTION update_ai_usage_stats();
 
+DROP TRIGGER IF EXISTS trigger_update_usage_stats_personalized ON personalized_reviews;
 CREATE TRIGGER trigger_update_usage_stats_personalized
     AFTER INSERT ON personalized_reviews
     FOR EACH ROW EXECUTE FUNCTION update_ai_usage_stats();

@@ -164,6 +164,7 @@ DROP POLICY IF EXISTS "Everyone can view active content filters" ON content_filt
 CREATE POLICY "Everyone can view active content filters" ON content_filters
     FOR SELECT USING (is_active = true);
 
+DROP POLICY IF EXISTS "Admins can manage content filters" ON content_filters;
 CREATE POLICY "Admins can manage content filters" ON content_filters
     FOR ALL USING (
         EXISTS (

@@ -391,12 +391,15 @@ CREATE TRIGGER trigger_update_alerts_updated_at
 -- custom_reports 테이블 RLS
 ALTER TABLE custom_reports ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can view their own custom reports" ON custom_reports;
 CREATE POLICY "Users can view their own custom reports" ON custom_reports
     FOR SELECT USING (auth.uid() = created_by);
 
+DROP POLICY IF EXISTS "Users can view public custom reports" ON custom_reports;
 CREATE POLICY "Users can view public custom reports" ON custom_reports
     FOR SELECT USING (is_public = true);
 
+DROP POLICY IF EXISTS "Admins can view all custom reports" ON custom_reports;
 CREATE POLICY "Admins can view all custom reports" ON custom_reports
     FOR SELECT USING (
         EXISTS (
@@ -405,9 +408,11 @@ CREATE POLICY "Admins can view all custom reports" ON custom_reports
         )
     );
 
+DROP POLICY IF EXISTS "Users can create custom reports" ON custom_reports;
 CREATE POLICY "Users can create custom reports" ON custom_reports
     FOR INSERT WITH CHECK (auth.uid() = created_by);
 
+DROP POLICY IF EXISTS "Users can update their own custom reports" ON custom_reports;
 CREATE POLICY "Users can update their own custom reports" ON custom_reports
     FOR UPDATE USING (auth.uid() = created_by);
 
