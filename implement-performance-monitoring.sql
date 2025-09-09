@@ -1,6 +1,15 @@
 -- 성능 최적화 및 모니터링 시스템 데이터베이스 스키마
 -- API 성능, 시스템 헬스, 캐시 통계, 데이터베이스 쿼리 모니터링
 
+-- 0. updated_at 컬럼 자동 업데이트를 위한 트리거 함수
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = NOW();
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
 -- 1. 성능 메트릭 테이블
 CREATE TABLE IF NOT EXISTS performance_metrics (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -396,6 +405,11 @@ CREATE POLICY "Admins can view system resources" ON system_resources
 
 CREATE POLICY "System can manage system resources" ON system_resources
     FOR ALL USING (true);
+
+-- 트리거 설정
+CREATE TRIGGER trigger_update_cache_stats_updated_at
+    BEFORE UPDATE ON cache_stats
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 COMMENT ON TABLE performance_metrics IS 'API 성능 메트릭';
 COMMENT ON TABLE system_health IS '시스템 헬스 체크';

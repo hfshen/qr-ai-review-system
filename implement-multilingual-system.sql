@@ -1,6 +1,15 @@
 -- 다국어 지원 시스템 데이터베이스 스키마
 -- 번역 관리 및 다국어 콘텐츠 지원
 
+-- 0. updated_at 컬럼 자동 업데이트를 위한 트리거 함수
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = NOW();
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
 -- 1. 지원 언어 테이블
 CREATE TABLE IF NOT EXISTS supported_languages (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -818,6 +827,23 @@ BEGIN
     RETURN COALESCE(result, 'ko');
 END;
 $$ LANGUAGE plpgsql;
+
+-- 13. 트리거 설정
+CREATE TRIGGER trigger_update_supported_languages_updated_at
+    BEFORE UPDATE ON supported_languages
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER trigger_update_translation_keys_updated_at
+    BEFORE UPDATE ON translation_keys
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER trigger_update_translation_values_updated_at
+    BEFORE UPDATE ON translation_values
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER trigger_update_user_language_settings_updated_at
+    BEFORE UPDATE ON user_language_settings
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 COMMENT ON TABLE supported_languages IS '지원 언어 목록';
 COMMENT ON TABLE translation_keys IS '번역 키 목록';

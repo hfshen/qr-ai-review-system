@@ -1,6 +1,15 @@
 -- 콘텐츠 필터링 시스템 데이터베이스 스키마
 -- 스팸, 부적절한 콘텐츠, 욕설, 광고성 콘텐츠 필터링
 
+-- 0. updated_at 컬럼 자동 업데이트를 위한 트리거 함수
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = NOW();
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
 -- 1. 콘텐츠 필터 규칙 테이블
 CREATE TABLE IF NOT EXISTS content_filters (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -306,6 +315,11 @@ BEGIN
     ORDER BY fs.date DESC, fs.filter_type, fs.severity;
 END;
 $$ LANGUAGE plpgsql;
+
+-- 11. 트리거 설정
+CREATE TRIGGER trigger_update_content_filters_updated_at
+    BEFORE UPDATE ON content_filters
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 COMMENT ON TABLE content_filters IS '콘텐츠 필터 규칙';
 COMMENT ON TABLE filtered_content IS '필터링된 콘텐츠 기록';

@@ -418,6 +418,20 @@ CREATE POLICY "System can insert personalized reviews" ON personalized_reviews
 -- 나머지 테이블들도 유사한 RLS 정책 적용
 -- (간결성을 위해 생략, 실제 구현 시 모든 테이블에 적용 필요)
 
+-- 13. 트리거 설정
+CREATE TRIGGER trigger_update_user_ai_profiles_updated_at
+    BEFORE UPDATE ON user_ai_profiles
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER trigger_update_ai_recommended_keywords_updated_at
+    BEFORE UPDATE ON ai_recommended_keywords
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER trigger_update_ai_usage_stats_updated_at
+    BEFORE UPDATE ON ai_usage_stats
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- 14. 테이블 설명
 COMMENT ON TABLE sentiment_analysis IS '감정 분석 결과';
 COMMENT ON TABLE review_quality_scores IS '리뷰 품질 평가';
 COMMENT ON TABLE user_ai_profiles IS '사용자 AI 프로필';

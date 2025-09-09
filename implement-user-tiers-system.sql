@@ -1,6 +1,15 @@
 -- 사용자 등급 시스템 데이터베이스 스키마
 -- 사용자 등급, 혜택, 진행 상황 관리
 
+-- 0. updated_at 컬럼 자동 업데이트를 위한 트리거 함수
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = NOW();
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
 -- 1. 사용자 등급 테이블
 CREATE TABLE IF NOT EXISTS user_tiers (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -283,6 +292,15 @@ BEGIN
     LEFT JOIN next_tier nt ON true;
 END;
 $$ LANGUAGE plpgsql;
+
+-- 12. 트리거 설정
+CREATE TRIGGER trigger_update_user_tiers_updated_at
+    BEFORE UPDATE ON user_tiers
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER trigger_update_tier_benefits_updated_at
+    BEFORE UPDATE ON tier_benefits
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 COMMENT ON TABLE user_tiers IS '사용자 등급 정보';
 COMMENT ON TABLE tier_benefits IS '등급별 혜택 정보';
