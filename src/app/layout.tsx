@@ -13,8 +13,6 @@ export const metadata: Metadata = {
   title: "AI 자동 리뷰 플랫폼",
   description: "QR 코드로 간편하게 리뷰를 작성하고 AI가 자동으로 리뷰를 생성해주는 플랫폼",
   manifest: "/manifest.json",
-  themeColor: "#2563eb",
-  viewport: "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
@@ -45,6 +43,14 @@ export const metadata: Metadata = {
       { url: "/icons/icon-167x167.png", sizes: "167x167", type: "image/png" },
     ],
   },
+};
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  themeColor: "#2563eb",
 };
 
 export default function RootLayout({
