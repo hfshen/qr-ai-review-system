@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS personalized_reviews (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     original_review_id UUID REFERENCES reviews(id) ON DELETE CASCADE,
     user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-    platform_id UUID REFERENCES platforms(id) ON DELETE CASCADE,
+    platform_id INTEGER REFERENCES platforms(id) ON DELETE CASCADE,
     original_review TEXT NOT NULL,
     personalized_review TEXT NOT NULL,
     tone_adjustment VARCHAR(20) NOT NULL CHECK (tone_adjustment IN ('formal', 'casual', 'friendly', 'professional')),

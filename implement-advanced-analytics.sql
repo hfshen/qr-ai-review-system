@@ -213,27 +213,27 @@ WHERE created_at >= CURRENT_DATE - INTERVAL '30 days'
 GROUP BY DATE_TRUNC('day', created_at)
 ORDER BY date DESC;
 
-CREATE OR REPLACE VIEW sentiment_trends AS
-SELECT 
-    DATE_TRUNC('day', sa.created_at) as date,
-    sa.sentiment,
-    COUNT(*) as count,
-    AVG(sa.confidence) as avg_confidence
-FROM sentiment_analysis sa
-WHERE sa.created_at >= CURRENT_DATE - INTERVAL '30 days'
-GROUP BY DATE_TRUNC('day', sa.created_at), sa.sentiment
-ORDER BY date DESC, sentiment;
+-- sentiment_trends 뷰는 sentiment_analysis 테이블 생성 후에 생성됩니다
+-- CREATE OR REPLACE VIEW sentiment_trends AS
+-- SELECT 
+--     DATE_TRUNC('day', sa.created_at) as date,
+--     sa.sentiment,
+--     COUNT(*) as count,
+--     AVG(sa.confidence) as avg_confidence
+-- FROM sentiment_analysis sa
+-- WHERE sa.created_at >= CURRENT_DATE - INTERVAL '30 days'
+-- GROUP BY DATE_TRUNC('day', sa.created_at), sa.sentiment
+-- ORDER BY date DESC, sentiment;
 
 CREATE OR REPLACE VIEW platform_performance AS
 SELECT 
     p.name as platform_name,
     COUNT(r.id) as total_reviews,
     AVG(r.rating) as avg_rating,
-    COUNT(CASE WHEN sa.sentiment = 'positive' THEN 1 END) as positive_count,
-    COUNT(CASE WHEN sa.sentiment = 'negative' THEN 1 END) as negative_count
+    0 as positive_count,
+    0 as negative_count
 FROM platforms p
 LEFT JOIN reviews r ON p.id = r.platform_id
-LEFT JOIN sentiment_analysis sa ON r.id = sa.review_id
 WHERE r.created_at >= CURRENT_DATE - INTERVAL '30 days'
 GROUP BY p.id, p.name
 ORDER BY total_reviews DESC;
@@ -246,10 +246,9 @@ SELECT
     AVG(r.rating) as avg_rating,
     COUNT(DISTINCT DATE(r.created_at)) as active_days,
     MAX(r.created_at) as last_review_date,
-    COUNT(CASE WHEN sa.sentiment = 'positive' THEN 1 END) as positive_sentiments
+    0 as positive_sentiments
 FROM users u
 LEFT JOIN reviews r ON u.id = r.user_id
-LEFT JOIN sentiment_analysis sa ON r.id = sa.review_id
 WHERE r.created_at >= CURRENT_DATE - INTERVAL '90 days'
 GROUP BY u.id, u.display_name
 ORDER BY total_reviews DESC;

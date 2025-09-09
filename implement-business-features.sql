@@ -34,7 +34,6 @@ CREATE TABLE IF NOT EXISTS user_subscriptions (
     stripe_customer_id VARCHAR(255),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    UNIQUE(user_id, status) WHERE status = 'active'
 );
 
 -- 3. 화이트라벨 설정 테이블
