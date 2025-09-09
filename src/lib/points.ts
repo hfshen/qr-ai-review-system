@@ -126,14 +126,24 @@ export async function getPointTransactions(
  */
 export async function depositAgencyPoints(
   agencyId: string,
-  depositAmount: number
+  depositAmount: number,
+  paymentMethod: string = 'card'
 ): Promise<{ success: boolean; deposit?: AgencyDeposit; error?: string }> {
   try {
+    const bonusPoints = calculateBonusPoints(depositAmount)
+    const basePoints = depositAmount
+    const totalPoints = basePoints + bonusPoints
+
     const { data, error } = await supabase
       .from('agency_deposits')
       .insert({
         agency_id: agencyId,
-        deposit_amount: depositAmount
+        deposit_amount: depositAmount,
+        base_points: basePoints,
+        bonus_points: bonusPoints,
+        total_points: totalPoints,
+        payment_method: paymentMethod,
+        payment_status: 'completed'
       })
       .select()
       .single()
