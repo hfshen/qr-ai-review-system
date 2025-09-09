@@ -240,11 +240,13 @@ BEGIN
         AND LOWER(content_text) LIKE '%' || LOWER(keyword) || '%'
     LOOP
         -- 심각도 레벨 계산
-        CASE found_filters.severity
-            WHEN 'low' THEN max_severity_level := GREATEST(max_severity_level, 1)
-            WHEN 'medium' THEN max_severity_level := GREATEST(max_severity_level, 2)
-            WHEN 'high' THEN max_severity_level := GREATEST(max_severity_level, 3)
-        END CASE;
+        IF found_filters.severity = 'low' THEN
+            max_severity_level := GREATEST(max_severity_level, 1);
+        ELSIF found_filters.severity = 'medium' THEN
+            max_severity_level := GREATEST(max_severity_level, 2);
+        ELSIF found_filters.severity = 'high' THEN
+            max_severity_level := GREATEST(max_severity_level, 3);
+        END IF;
         
         -- 이유 추가
         result_reasons := result_reasons || 
@@ -252,23 +254,22 @@ BEGIN
     END LOOP;
     
     -- 최종 심각도 결정
-    CASE max_severity_level
-        WHEN 3 THEN 
-            result_severity := 'high';
-            result_is_blocked := true;
-            result_suggested_action := 'block';
-        WHEN 2 THEN 
-            result_severity := 'medium';
-            result_is_flagged := true;
-            result_suggested_action := 'flag';
-        WHEN 1 THEN 
-            result_severity := 'low';
-            result_is_flagged := true;
-            result_suggested_action := 'review';
-        ELSE 
-            result_severity := 'low';
-            result_suggested_action := 'allow';
-    END CASE;
+    IF max_severity_level >= 3 THEN
+        result_severity := 'high';
+        result_is_blocked := true;
+        result_suggested_action := 'block';
+    ELSIF max_severity_level >= 2 THEN
+        result_severity := 'medium';
+        result_is_flagged := true;
+        result_suggested_action := 'flag';
+    ELSIF max_severity_level >= 1 THEN
+        result_severity := 'low';
+        result_is_flagged := true;
+        result_suggested_action := 'review';
+    ELSE
+        result_severity := 'low';
+        result_suggested_action := 'allow';
+    END IF;
     
     RETURN QUERY SELECT 
         result_is_blocked,
