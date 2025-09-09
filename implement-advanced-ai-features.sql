@@ -419,14 +419,17 @@ CREATE POLICY "System can insert personalized reviews" ON personalized_reviews
 -- (간결성을 위해 생략, 실제 구현 시 모든 테이블에 적용 필요)
 
 -- 13. 트리거 설정
+DROP TRIGGER IF EXISTS trigger_update_user_ai_profiles_updated_at ON user_ai_profiles;
 CREATE TRIGGER trigger_update_user_ai_profiles_updated_at
     BEFORE UPDATE ON user_ai_profiles
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS trigger_update_ai_recommended_keywords_updated_at ON ai_recommended_keywords;
 CREATE TRIGGER trigger_update_ai_recommended_keywords_updated_at
     BEFORE UPDATE ON ai_recommended_keywords
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS trigger_update_ai_usage_stats_updated_at ON ai_usage_stats;
 CREATE TRIGGER trigger_update_ai_usage_stats_updated_at
     BEFORE UPDATE ON ai_usage_stats
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();

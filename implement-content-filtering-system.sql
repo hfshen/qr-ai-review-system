@@ -160,6 +160,7 @@ CREATE TRIGGER trigger_update_filter_statistics
 -- content_filters 테이블 RLS
 ALTER TABLE content_filters ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Everyone can view active content filters" ON content_filters;
 CREATE POLICY "Everyone can view active content filters" ON content_filters
     FOR SELECT USING (is_active = true);
 
@@ -317,6 +318,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- 11. 트리거 설정
+DROP TRIGGER IF EXISTS trigger_update_content_filters_updated_at ON content_filters;
 CREATE TRIGGER trigger_update_content_filters_updated_at
     BEFORE UPDATE ON content_filters
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();

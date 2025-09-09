@@ -308,6 +308,7 @@ $$ LANGUAGE plpgsql;
 -- performance_metrics 테이블 RLS
 ALTER TABLE performance_metrics ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Admins can view all performance metrics" ON performance_metrics;
 CREATE POLICY "Admins can view all performance metrics" ON performance_metrics
     FOR SELECT USING (
         EXISTS (
@@ -407,6 +408,7 @@ CREATE POLICY "System can manage system resources" ON system_resources
     FOR ALL USING (true);
 
 -- 트리거 설정
+DROP TRIGGER IF EXISTS trigger_update_cache_stats_updated_at ON cache_stats;
 CREATE TRIGGER trigger_update_cache_stats_updated_at
     BEFORE UPDATE ON cache_stats
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();

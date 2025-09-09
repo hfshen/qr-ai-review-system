@@ -356,26 +356,32 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- 16. 트리거 설정
+DROP TRIGGER IF EXISTS trigger_update_custom_reports_updated_at ON custom_reports;
 CREATE TRIGGER trigger_update_custom_reports_updated_at
     BEFORE UPDATE ON custom_reports
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS trigger_update_ab_tests_updated_at ON ab_tests;
 CREATE TRIGGER trigger_update_ab_tests_updated_at
     BEFORE UPDATE ON ab_tests
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS trigger_update_customer_segments_updated_at ON customer_segments;
 CREATE TRIGGER trigger_update_customer_segments_updated_at
     BEFORE UPDATE ON customer_segments
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS trigger_update_dashboards_updated_at ON analytics_dashboards;
 CREATE TRIGGER trigger_update_dashboards_updated_at
     BEFORE UPDATE ON analytics_dashboards
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS trigger_update_widgets_updated_at ON analytics_widgets;
 CREATE TRIGGER trigger_update_widgets_updated_at
     BEFORE UPDATE ON analytics_widgets
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS trigger_update_alerts_updated_at ON analytics_alerts;
 CREATE TRIGGER trigger_update_alerts_updated_at
     BEFORE UPDATE ON analytics_alerts
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();

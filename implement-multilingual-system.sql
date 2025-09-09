@@ -712,6 +712,7 @@ WHERE NOT EXISTS (
 -- supported_languages 테이블 RLS
 ALTER TABLE supported_languages ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Everyone can view active languages" ON supported_languages;
 CREATE POLICY "Everyone can view active languages" ON supported_languages
     FOR SELECT USING (is_active = true);
 
@@ -829,18 +830,22 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- 13. 트리거 설정
+DROP TRIGGER IF EXISTS trigger_update_supported_languages_updated_at ON supported_languages;
 CREATE TRIGGER trigger_update_supported_languages_updated_at
     BEFORE UPDATE ON supported_languages
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS trigger_update_translation_keys_updated_at ON translation_keys;
 CREATE TRIGGER trigger_update_translation_keys_updated_at
     BEFORE UPDATE ON translation_keys
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS trigger_update_translation_values_updated_at ON translation_values;
 CREATE TRIGGER trigger_update_translation_values_updated_at
     BEFORE UPDATE ON translation_values
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS trigger_update_user_language_settings_updated_at ON user_language_settings;
 CREATE TRIGGER trigger_update_user_language_settings_updated_at
     BEFORE UPDATE ON user_language_settings
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();

@@ -144,6 +144,7 @@ CREATE TRIGGER trigger_update_user_tier_on_points_change
 -- user_tiers 테이블 RLS
 ALTER TABLE user_tiers ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Everyone can view user tiers" ON user_tiers;
 CREATE POLICY "Everyone can view user tiers" ON user_tiers
     FOR SELECT USING (true);
 
@@ -294,10 +295,12 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- 12. 트리거 설정
+DROP TRIGGER IF EXISTS trigger_update_user_tiers_updated_at ON user_tiers;
 CREATE TRIGGER trigger_update_user_tiers_updated_at
     BEFORE UPDATE ON user_tiers
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS trigger_update_tier_benefits_updated_at ON tier_benefits;
 CREATE TRIGGER trigger_update_tier_benefits_updated_at
     BEFORE UPDATE ON tier_benefits
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();

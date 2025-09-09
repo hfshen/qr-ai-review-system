@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS user_subscriptions (
     stripe_subscription_id VARCHAR(255),
     stripe_customer_id VARCHAR(255),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- 3. 화이트라벨 설정 테이블
@@ -296,22 +296,27 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- 15. 트리거 설정
+DROP TRIGGER IF EXISTS trigger_update_subscription_plans_updated_at ON subscription_plans;
 CREATE TRIGGER trigger_update_subscription_plans_updated_at
     BEFORE UPDATE ON subscription_plans
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS trigger_update_user_subscriptions_updated_at ON user_subscriptions;
 CREATE TRIGGER trigger_update_user_subscriptions_updated_at
     BEFORE UPDATE ON user_subscriptions
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS trigger_update_white_label_configs_updated_at ON white_label_configs;
 CREATE TRIGGER trigger_update_white_label_configs_updated_at
     BEFORE UPDATE ON white_label_configs
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS trigger_update_api_marketplace_updated_at ON api_marketplace;
 CREATE TRIGGER trigger_update_api_marketplace_updated_at
     BEFORE UPDATE ON api_marketplace
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS trigger_update_partnerships_updated_at ON partnerships;
 CREATE TRIGGER trigger_update_partnerships_updated_at
     BEFORE UPDATE ON partnerships
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();

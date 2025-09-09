@@ -374,10 +374,12 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- 16. 트리거 설정
+DROP TRIGGER IF EXISTS trigger_update_two_factor_auth_updated_at ON two_factor_auth;
 CREATE TRIGGER trigger_update_two_factor_auth_updated_at
     BEFORE UPDATE ON two_factor_auth
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS trigger_update_security_policies_updated_at ON security_policies;
 CREATE TRIGGER trigger_update_security_policies_updated_at
     BEFORE UPDATE ON security_policies
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
