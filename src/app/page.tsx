@@ -129,52 +129,208 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 기능 소개 섹션 */}
+      {/* 상세 스텝바이스텝 가이드 섹션 */}
       <section className="py-12 lg:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12 animate-fade-in">
             <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">
-              간편한 3단계 프로세스
+              🎯 완벽한 리뷰 작성 가이드
             </h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
-              복잡한 과정 없이 몇 번의 터치로 완성되는 리뷰 시스템
+              단계별로 따라하면 누구나 쉽게 완성도 높은 리뷰를 작성할 수 있습니다
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
-            <div className="mobile-card hover-lift animate-slide-up">
-              <div className="text-center">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl mb-4">
-                  <span className="text-2xl">📱</span>
+          {/* 스텝 1: QR 스캔 */}
+          <div className="mb-16 step-connector">
+            <div className="mobile-card step-hover-lift animate-slide-up">
+              <div className="flex flex-col lg:flex-row items-center gap-8">
+                <div className="flex-shrink-0">
+                  <div className="relative">
+                    <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-blue-500 to-blue-600 rounded-3xl mb-4 step-pulse">
+                      <span className="text-3xl">📱</span>
+                    </div>
+                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-bold step-number">
+                      1
+                    </div>
+                  </div>
                 </div>
-                <h3 className="text-xl font-semibold mb-3 text-gray-900">QR 코드 스캔</h3>
-                <p className="text-gray-600 leading-relaxed">
-                  매장의 QR 코드를 스캔하여 간편하게 리뷰를 시작하세요.
-                </p>
+                <div className="flex-1 text-center lg:text-left">
+                  <h3 className="text-2xl font-bold mb-4 text-gray-900">QR 코드 스캔하기</h3>
+                  <div className="space-y-3 text-gray-600">
+                    <p className="flex items-center justify-center lg:justify-start gap-2">
+                      <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
+                      매장에 있는 QR 코드를 카메라로 스캔
+                    </p>
+                    <p className="flex items-center justify-center lg:justify-start gap-2">
+                      <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
+                      자동으로 매장 정보와 메뉴가 로드됨
+                    </p>
+                    <p className="flex items-center justify-center lg:justify-start gap-2">
+                      <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
+                      리뷰 작성 페이지로 자동 이동
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
-            
-            <div className="mobile-card hover-lift animate-slide-up" style={{ animationDelay: '0.1s' }}>
-              <div className="text-center">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-purple-500 to-purple-600 rounded-2xl mb-4">
-                  <span className="text-2xl">🤖</span>
+          </div>
+
+          {/* 스텝 2: 리뷰 작성 */}
+          <div className="mb-16 step-connector">
+            <div className="mobile-card step-hover-lift animate-slide-up" style={{ animationDelay: '0.1s' }}>
+              <div className="flex flex-col lg:flex-row items-center gap-8">
+                <div className="flex-shrink-0">
+                  <div className="relative">
+                    <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-purple-500 to-purple-600 rounded-3xl mb-4 step-pulse">
+                      <span className="text-3xl">✍️</span>
+                    </div>
+                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-purple-500 text-white rounded-full flex items-center justify-center text-sm font-bold step-number">
+                      2
+                    </div>
+                  </div>
                 </div>
-                <h3 className="text-xl font-semibold mb-3 text-gray-900">AI 리뷰 생성</h3>
-                <p className="text-gray-600 leading-relaxed">
-                  인공지능이 당신의 경험을 바탕으로 완성도 높은 리뷰를 자동 생성합니다.
-                </p>
+                <div className="flex-1 text-center lg:text-left">
+                  <h3 className="text-2xl font-bold mb-4 text-gray-900">리뷰 작성하기</h3>
+                  <div className="space-y-3 text-gray-600">
+                    <p className="flex items-center justify-center lg:justify-start gap-2">
+                      <span className="w-2 h-2 bg-purple-500 rounded-full"></span>
+                      간단한 평점과 키워드 선택 (예: 맛있어요, 친절해요)
+                    </p>
+                    <p className="flex items-center justify-center lg:justify-start gap-2">
+                      <span className="w-2 h-2 bg-purple-500 rounded-full"></span>
+                      사진 업로드 (선택사항)
+                    </p>
+                    <p className="flex items-center justify-center lg:justify-start gap-2">
+                      <span className="w-2 h-2 bg-purple-500 rounded-full"></span>
+                      AI가 자동으로 완성도 높은 리뷰 텍스트 생성
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
-            
-            <div className="mobile-card hover-lift animate-slide-up" style={{ animationDelay: '0.2s' }}>
-              <div className="text-center">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-green-500 to-green-600 rounded-2xl mb-4">
-                  <span className="text-2xl">📤</span>
+          </div>
+
+          {/* 스텝 3: AI 캡션 생성 */}
+          <div className="mb-16 step-connector">
+            <div className="mobile-card step-hover-lift animate-slide-up" style={{ animationDelay: '0.2s' }}>
+              <div className="flex flex-col lg:flex-row items-center gap-8">
+                <div className="flex-shrink-0">
+                  <div className="relative">
+                    <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-3xl mb-4 step-pulse">
+                      <span className="text-3xl">🤖</span>
+                    </div>
+                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-indigo-500 text-white rounded-full flex items-center justify-center text-sm font-bold step-number">
+                      3
+                    </div>
+                  </div>
                 </div>
-                <h3 className="text-xl font-semibold mb-3 text-gray-900">자동 게시</h3>
-                <p className="text-gray-600 leading-relaxed">
-                  네이버, 인스타그램, 틱톡 등 다양한 플랫폼에 리뷰를 자동으로 게시합니다.
-                </p>
+                <div className="flex-1 text-center lg:text-left">
+                  <h3 className="text-2xl font-bold mb-4 text-gray-900">AI 캡션 생성</h3>
+                  <div className="space-y-3 text-gray-600">
+                    <p className="flex items-center justify-center lg:justify-start gap-2">
+                      <span className="w-2 h-2 bg-indigo-500 rounded-full"></span>
+                      플랫폼별 최적화된 캡션 자동 생성
+                    </p>
+                    <p className="flex items-center justify-center lg:justify-start gap-2">
+                      <span className="w-2 h-2 bg-indigo-500 rounded-full"></span>
+                      해시태그와 이모지 자동 추가
+                    </p>
+                    <p className="flex items-center justify-center lg:justify-start gap-2">
+                      <span className="w-2 h-2 bg-indigo-500 rounded-full"></span>
+                      개인 취향에 맞춘 맞춤형 문체 적용
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 스텝 4: 스마트 공유 */}
+          <div className="mb-16 step-connector">
+            <div className="mobile-card step-hover-lift animate-slide-up" style={{ animationDelay: '0.3s' }}>
+              <div className="flex flex-col lg:flex-row items-center gap-8">
+                <div className="flex-shrink-0">
+                  <div className="relative">
+                    <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-green-500 to-green-600 rounded-3xl mb-4 step-pulse">
+                      <span className="text-3xl">📤</span>
+                    </div>
+                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center text-sm font-bold step-number">
+                      4
+                    </div>
+                  </div>
+                </div>
+                <div className="flex-1 text-center lg:text-left">
+                  <h3 className="text-2xl font-bold mb-4 text-gray-900">스마트 공유</h3>
+                  <div className="space-y-3 text-gray-600">
+                    <p className="flex items-center justify-center lg:justify-start gap-2">
+                      <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                      원하는 플랫폼 선택 (네이버, 인스타그램, 틱톡 등)
+                    </p>
+                    <p className="flex items-center justify-center lg:justify-start gap-2">
+                      <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                      원탭으로 해당 앱으로 자동 이동
+                    </p>
+                    <p className="flex items-center justify-center lg:justify-start gap-2">
+                      <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                      미리 작성된 내용으로 바로 게시 가능
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 스텝 5: 포인트 획득 */}
+          <div className="mb-16 step-connector">
+            <div className="mobile-card step-hover-lift animate-slide-up" style={{ animationDelay: '0.4s' }}>
+              <div className="flex flex-col lg:flex-row items-center gap-8">
+                <div className="flex-shrink-0">
+                  <div className="relative">
+                    <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-3xl mb-4 step-pulse">
+                      <span className="text-3xl">💰</span>
+                    </div>
+                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-yellow-500 text-white rounded-full flex items-center justify-center text-sm font-bold step-number">
+                      5
+                    </div>
+                  </div>
+                </div>
+                <div className="flex-1 text-center lg:text-left">
+                  <h3 className="text-2xl font-bold mb-4 text-gray-900">포인트 획득</h3>
+                  <div className="space-y-3 text-gray-600">
+                    <p className="flex items-center justify-center lg:justify-start gap-2">
+                      <span className="w-2 h-2 bg-yellow-500 rounded-full"></span>
+                      리뷰 작성 완료 시 자동으로 포인트 적립
+                    </p>
+                    <p className="flex items-center justify-center lg:justify-start gap-2">
+                      <span className="w-2 h-2 bg-yellow-500 rounded-full"></span>
+                      연속 작성 시 보너스 포인트 추가 지급
+                    </p>
+                    <p className="flex items-center justify-center lg:justify-start gap-2">
+                      <span className="w-2 h-2 bg-yellow-500 rounded-full"></span>
+                      포인트로 다양한 혜택과 쿠폰 교환 가능
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 요약 카드 */}
+          <div className="mobile-card bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-200 animate-scale-in step-content-fade">
+            <div className="text-center">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl mb-4">
+                <span className="text-2xl">✨</span>
+              </div>
+              <h3 className="text-xl font-bold mb-3 text-gray-900">전체 과정이 단 5분!</h3>
+              <p className="text-gray-600 mb-4">
+                복잡한 과정 없이 간단한 터치만으로 완성도 높은 리뷰를 작성하고 공유할 수 있습니다.
+              </p>
+              <div className="flex flex-wrap justify-center gap-2 text-sm">
+                <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full">#간편함</span>
+                <span className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full">#AI자동화</span>
+                <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full">#원탭공유</span>
+                <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full">#포인트적립</span>
               </div>
             </div>
           </div>

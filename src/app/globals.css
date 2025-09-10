@@ -264,7 +264,7 @@
   20%, 40%, 60%, 80% { transform: translateX(5px); }
 }
 
-/* 접근성 스타일 */
+ㅂㅂ/* 접근성 스타일 */
 :root {
   --font-size-multiplier: 1;
 }
@@ -595,4 +595,71 @@ body {
   .progress-80 { width: 80%; }
   .progress-90 { width: 90%; }
   .progress-100 { width: 100%; }
+
+  /* Step Guide Styles */
+  .step-connector {
+    position: relative;
+  }
+  
+  .step-connector::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 2px;
+    height: 60px;
+    background: linear-gradient(to bottom, #e5e7eb, #d1d5db);
+    z-index: 1;
+  }
+  
+  .step-connector:last-child::after {
+    display: none;
+  }
+  
+  .step-number {
+    position: relative;
+    z-index: 2;
+    background: white;
+    border: 2px solid currentColor;
+  }
+  
+  .step-pulse {
+    animation: stepPulse 2s infinite;
+  }
+  
+  @keyframes stepPulse {
+    0%, 100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    50% {
+      transform: scale(1.05);
+      opacity: 0.8;
+    }
+  }
+  
+  .step-hover-lift {
+    transition: all 0.3s ease;
+  }
+  
+  .step-hover-lift:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  }
+  
+  .step-content-fade {
+    animation: stepContentFade 0.6s ease-out;
+  }
+  
+  @keyframes stepContentFade {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 }
