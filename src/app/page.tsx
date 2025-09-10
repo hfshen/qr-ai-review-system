@@ -103,12 +103,21 @@ export default function Home() {
               포인트를 모아 다양한 혜택을 받아보세요!
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center animate-slide-up">
-              <a 
-                href="/auth" 
+              <button 
+                onClick={() => {
+                  // 로그인 모달 표시 또는 로그인 페이지로 이동
+                  const authForm = document.querySelector('[data-auth-form]')
+                  if (authForm) {
+                    authForm.scrollIntoView({ behavior: 'smooth' })
+                  } else {
+                    // AuthForm 컴포넌트가 없으면 직접 표시
+                    window.location.href = '#auth-section'
+                  }
+                }}
                 className="mobile-btn-primary hover-lift"
               >
                 🚀 지금 시작하기
-              </a>
+              </button>
               <a 
                 href="/marketplace" 
                 className="mobile-btn-secondary hover-lift"
@@ -225,12 +234,17 @@ export default function Home() {
               간편한 가입으로 AI 리뷰 플랫폼의 모든 기능을 무료로 체험해보세요.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a 
-                href="/auth" 
+              <button 
+                onClick={() => {
+                  const authSection = document.getElementById('auth-section')
+                  if (authSection) {
+                    authSection.scrollIntoView({ behavior: 'smooth' })
+                  }
+                }}
                 className="mobile-btn-primary hover-lift"
               >
                 🚀 무료로 시작하기
-              </a>
+              </button>
               <a 
                 href="/marketplace" 
                 className="mobile-btn-secondary hover-lift"
@@ -238,6 +252,23 @@ export default function Home() {
                 🛒 마켓플레이스 둘러보기
               </a>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 로그인/회원가입 섹션 */}
+      <section id="auth-section" className="py-12 lg:py-20 bg-gradient-to-br from-gray-50 to-blue-50">
+        <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">
+              로그인 또는 회원가입
+            </h2>
+            <p className="text-gray-600">
+              계정을 만들고 AI 리뷰 플랫폼을 시작해보세요
+            </p>
+          </div>
+          <div data-auth-form>
+            <AuthForm />
           </div>
         </div>
       </section>
