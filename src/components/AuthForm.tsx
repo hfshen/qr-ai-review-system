@@ -91,10 +91,18 @@ export default function AuthForm() {
   const handleGoogleAuth = async () => {
     setLoading(true)
     try {
+      // 환경 변수와 현재 도메인을 확인하여 올바른 리다이렉트 URL 생성
+      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin
+      
+      // localhost가 아닌 실제 도메인인지 확인
+      if (siteUrl.includes('localhost')) {
+        console.warn('Warning: Using localhost URL for OAuth redirect. Please set NEXT_PUBLIC_SITE_URL environment variable.')
+      }
+      
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || window.location.origin}/auth/callback`
+          redirectTo: `${siteUrl}/auth/callback`
         }
       })
       if (error) throw error

@@ -30,6 +30,12 @@ export default function PlatformOAuth({ platforms, onConnectionUpdate }: Platfor
     try {
       // 플랫폼별 OAuth URL 생성
       const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin
+      
+      // localhost가 아닌 실제 도메인인지 확인
+      if (baseUrl.includes('localhost')) {
+        console.warn('Warning: Using localhost URL for OAuth redirect. Please set NEXT_PUBLIC_SITE_URL environment variable.')
+      }
+      
       let oauthUrl = ''
       
       switch (platform.name.toLowerCase()) {
