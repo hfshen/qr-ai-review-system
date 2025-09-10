@@ -1,4 +1,4 @@
--- 게임화 및 성과 추적을 위한 추가 테이블들
+-- 게임화 및 성과 추적을 위한 추가 테이블들 (수정된 버전)
 
 -- 사용자 캡션 히스토리 (AI 학습용)
 CREATE TABLE IF NOT EXISTS user_caption_history (
@@ -26,9 +26,8 @@ CREATE TABLE IF NOT EXISTS posting_tracker (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- 사용자 포인트 테이블은 이미 존재하므로 컬럼만 추가
-ALTER TABLE user_points 
-ADD COLUMN IF NOT EXISTS description TEXT;
+-- user_points 테이블은 이미 올바른 구조로 마이그레이션됨
+-- (migrate-user-points.sql 실행 후)
 
 -- 사용자 배지 테이블
 CREATE TABLE IF NOT EXISTS user_badges (
@@ -140,7 +139,7 @@ DECLARE
   level_name TEXT;
   benefits TEXT[];
 BEGIN
-  -- 사용자의 총 포인트 계산 (source 컬럼이 있는 경우만)
+  -- 사용자의 총 포인트 계산
   SELECT COALESCE(SUM(points), 0) INTO total_points
   FROM user_points
   WHERE user_id = NEW.user_id;

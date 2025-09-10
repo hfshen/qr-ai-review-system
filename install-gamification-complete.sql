@@ -1,4 +1,63 @@
--- 게임화 및 성과 추적을 위한 추가 테이블들
+-- 🚀 QR AI 리뷰 시스템 - 게임화 기능 통합 설치 스크립트
+-- 실행 순서: 1. migrate-user-points.sql → 2. gamification-schema-fixed.sql
+
+-- ========================================
+-- 1단계: user_points 테이블 마이그레이션
+-- ========================================
+
+-- 기존 user_points 테이블 백업
+CREATE TABLE IF NOT EXISTS user_points_backup AS 
+SELECT * FROM user_points;
+
+-- 기존 user_points 테이블 삭제
+DROP TABLE IF EXISTS user_points CASCADE;
+
+-- 새로운 user_points 테이블 생성 (거래 내역 저장용)
+CREATE TABLE user_points (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID REFERENCES users(id) NOT NULL,
+  points INTEGER NOT NULL,
+  source VARCHAR(100) NOT NULL,
+  description TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- 기존 데이터 마이그레이션
+INSERT INTO user_points (user_id, points, source, description)
+SELECT 
+  user_id, 
+  points, 
+  'initial_balance' as source,
+  '초기 잔액' as description
+FROM user_points_backup 
+WHERE points > 0;
+
+-- 백업 테이블 삭제
+DROP TABLE user_points_backup;
+
+-- 인덱스 생성
+CREATE INDEX idx_user_points_user_id ON user_points(user_id);
+CREATE INDEX idx_user_points_source ON user_points(source);
+CREATE INDEX idx_user_points_created_at ON user_points(created_at);
+
+-- RLS 정책 설정
+ALTER TABLE user_points ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can view their own points" ON user_points
+  FOR SELECT USING (user_id = auth.uid());
+
+CREATE POLICY "Users can insert their own points" ON user_points
+  FOR INSERT WITH CHECK (user_id = auth.uid());
+
+CREATE POLICY "System can insert user points" ON user_points
+  FOR INSERT WITH CHECK (true);
+
+CREATE POLICY "Admins can view all points" ON user_points
+  FOR SELECT USING ((SELECT role FROM users WHERE id = auth.uid()) = 'admin');
+
+-- ========================================
+-- 2단계: 게임화 테이블 생성
+-- ========================================
 
 -- 사용자 캡션 히스토리 (AI 학습용)
 CREATE TABLE IF NOT EXISTS user_caption_history (
@@ -25,10 +84,6 @@ CREATE TABLE IF NOT EXISTS posting_tracker (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
-
--- 사용자 포인트 테이블은 이미 존재하므로 컬럼만 추가
-ALTER TABLE user_points 
-ADD COLUMN IF NOT EXISTS description TEXT;
 
 -- 사용자 배지 테이블
 CREATE TABLE IF NOT EXISTS user_badges (
@@ -67,24 +122,29 @@ CREATE TABLE IF NOT EXISTS social_proof_stats (
   UNIQUE(platform_id, date)
 );
 
--- 인덱스 생성
+-- ========================================
+-- 3단계: 인덱스 생성
+-- ========================================
+
 CREATE INDEX IF NOT EXISTS idx_user_caption_history_user_id ON user_caption_history(user_id);
 CREATE INDEX IF NOT EXISTS idx_user_caption_history_platform_id ON user_caption_history(platform_id);
 CREATE INDEX IF NOT EXISTS idx_posting_tracker_user_id ON posting_tracker(user_id);
 CREATE INDEX IF NOT EXISTS idx_posting_tracker_platform_id ON posting_tracker(platform_id);
 CREATE INDEX IF NOT EXISTS idx_posting_tracker_status ON posting_tracker(status);
-CREATE INDEX IF NOT EXISTS idx_user_points_user_id ON user_points(user_id);
-CREATE INDEX IF NOT EXISTS idx_user_points_source ON user_points(source);
 CREATE INDEX IF NOT EXISTS idx_user_badges_user_id ON user_badges(user_id);
 CREATE INDEX IF NOT EXISTS idx_social_proof_stats_date ON social_proof_stats(date);
 
--- RLS 정책 설정
+-- ========================================
+-- 4단계: RLS 정책 설정
+-- ========================================
+
 ALTER TABLE user_caption_history ENABLE ROW LEVEL SECURITY;
 ALTER TABLE posting_tracker ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_badges ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_levels ENABLE ROW LEVEL SECURITY;
+ALTER TABLE social_proof_stats ENABLE ROW LEVEL SECURITY;
 
--- 사용자는 자신의 데이터만 조회/수정 가능
+-- 사용자 데이터 접근 정책
 CREATE POLICY "Users can view their own caption history" ON user_caption_history
   FOR SELECT USING (user_id = auth.uid());
 
@@ -112,7 +172,7 @@ CREATE POLICY "Users can view their own level" ON user_levels
 CREATE POLICY "Users can update their own level" ON user_levels
   FOR UPDATE USING (user_id = auth.uid());
 
--- 관리자는 모든 데이터 조회 가능
+-- 관리자 접근 정책
 CREATE POLICY "Admins can view all caption history" ON user_caption_history
   FOR SELECT USING ((SELECT role FROM users WHERE id = auth.uid()) = 'admin');
 
@@ -126,11 +186,12 @@ CREATE POLICY "Admins can view all levels" ON user_levels
   FOR SELECT USING ((SELECT role FROM users WHERE id = auth.uid()) = 'admin');
 
 -- 소셜 증명 통계는 모든 사용자가 조회 가능
-ALTER TABLE social_proof_stats ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Everyone can view social proof stats" ON social_proof_stats
   FOR SELECT USING (true);
 
--- 트리거 함수들
+-- ========================================
+-- 5단계: 트리거 함수 생성
+-- ========================================
 
 -- 사용자 포인트 업데이트 시 레벨 자동 계산
 CREATE OR REPLACE FUNCTION update_user_level() RETURNS TRIGGER AS $$
@@ -140,7 +201,7 @@ DECLARE
   level_name TEXT;
   benefits TEXT[];
 BEGIN
-  -- 사용자의 총 포인트 계산 (source 컬럼이 있는 경우만)
+  -- 사용자의 총 포인트 계산
   SELECT COALESCE(SUM(points), 0) INTO total_points
   FROM user_points
   WHERE user_id = NEW.user_id;
@@ -236,9 +297,84 @@ CREATE TRIGGER trg_update_social_proof_stats
   FOR EACH ROW
   EXECUTE FUNCTION update_social_proof_stats();
 
--- 초기 데이터 삽입
+-- ========================================
+-- 6단계: 유틸리티 함수 생성
+-- ========================================
+
+-- 사용자 잔액 조회 함수
+CREATE OR REPLACE FUNCTION get_user_points_balance(user_uuid UUID)
+RETURNS INTEGER AS $$
+BEGIN
+  RETURN COALESCE(
+    (SELECT SUM(points) FROM user_points WHERE user_id = user_uuid), 
+    0
+  );
+END;
+$$ LANGUAGE plpgsql;
+
+-- 사용자 포인트 추가 함수
+CREATE OR REPLACE FUNCTION add_user_points(
+  user_uuid UUID,
+  points_amount INTEGER,
+  source_type VARCHAR(100),
+  description_text TEXT DEFAULT NULL
+)
+RETURNS VOID AS $$
+BEGIN
+  INSERT INTO user_points (user_id, points, source, description)
+  VALUES (user_uuid, points_amount, source_type, description_text);
+END;
+$$ LANGUAGE plpgsql;
+
+-- 포인트 사용 함수
+CREATE OR REPLACE FUNCTION use_user_points(
+  user_uuid UUID,
+  points_amount INTEGER,
+  source_type VARCHAR(100),
+  description_text TEXT DEFAULT NULL
+)
+RETURNS BOOLEAN AS $$
+DECLARE
+  current_balance INTEGER;
+BEGIN
+  -- 현재 잔액 확인
+  SELECT get_user_points_balance(user_uuid) INTO current_balance;
+  
+  -- 잔액이 충분한지 확인
+  IF current_balance >= points_amount THEN
+    -- 포인트 차감
+    INSERT INTO user_points (user_id, points, source, description)
+    VALUES (user_uuid, -points_amount, source_type, description_text);
+    RETURN TRUE;
+  ELSE
+    RETURN FALSE;
+  END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+-- ========================================
+-- 7단계: 초기 데이터 삽입
+-- ========================================
+
+-- 모든 사용자의 초기 레벨 설정
 INSERT INTO user_levels (user_id, level, total_points, level_name, benefits)
 SELECT id, 1, 0, '리뷰 초보', ARRAY['기본 포인트 획득']
 FROM users
 WHERE id NOT IN (SELECT user_id FROM user_levels)
 ON CONFLICT (user_id) DO NOTHING;
+
+-- ========================================
+-- 설치 완료 메시지
+-- ========================================
+
+-- 설치 완료 확인
+DO $$
+BEGIN
+  RAISE NOTICE '🎉 QR AI 리뷰 시스템 게임화 기능 설치 완료!';
+  RAISE NOTICE '✅ user_points 테이블 마이그레이션 완료';
+  RAISE NOTICE '✅ 게임화 테이블 생성 완료';
+  RAISE NOTICE '✅ RLS 정책 설정 완료';
+  RAISE NOTICE '✅ 트리거 함수 생성 완료';
+  RAISE NOTICE '✅ 유틸리티 함수 생성 완료';
+  RAISE NOTICE '🚀 이제 고급 기능들을 사용할 수 있습니다!';
+END $$;
