@@ -353,11 +353,9 @@ $$ LANGUAGE plpgsql;
 -- sentiment_analysis 테이블 RLS
 ALTER TABLE sentiment_analysis ENABLE ROW LEVEL SECURITY;
 
-DROP POLICY IF EXISTS "Users can view their own sentiment analysis" ON sentiment_analysis;
 CREATE POLICY "Users can view their own sentiment analysis" ON sentiment_analysis
     FOR SELECT USING (auth.uid() = user_id);
 
-DROP POLICY IF EXISTS "Admins can view all sentiment analysis" ON sentiment_analysis;
 CREATE POLICY "Admins can view all sentiment analysis" ON sentiment_analysis
     FOR SELECT USING (
         EXISTS (
@@ -372,11 +370,9 @@ CREATE POLICY "System can insert sentiment analysis" ON sentiment_analysis
 -- review_quality_scores 테이블 RLS
 ALTER TABLE review_quality_scores ENABLE ROW LEVEL SECURITY;
 
-DROP POLICY IF EXISTS "Users can view their own quality scores" ON review_quality_scores;
 CREATE POLICY "Users can view their own quality scores" ON review_quality_scores
     FOR SELECT USING (auth.uid() = user_id);
 
-DROP POLICY IF EXISTS "Admins can view all quality scores" ON review_quality_scores;
 CREATE POLICY "Admins can view all quality scores" ON review_quality_scores
     FOR SELECT USING (
         EXISTS (
@@ -385,22 +381,18 @@ CREATE POLICY "Admins can view all quality scores" ON review_quality_scores
         )
     );
 
-DROP POLICY IF EXISTS "System can insert quality scores" ON review_quality_scores;
 CREATE POLICY "System can insert quality scores" ON review_quality_scores
     FOR INSERT WITH CHECK (true);
 
 -- user_ai_profiles 테이블 RLS
 ALTER TABLE user_ai_profiles ENABLE ROW LEVEL SECURITY;
 
-DROP POLICY IF EXISTS "Users can view their own AI profile" ON user_ai_profiles;
 CREATE POLICY "Users can view their own AI profile" ON user_ai_profiles
     FOR SELECT USING (auth.uid() = user_id);
 
-DROP POLICY IF EXISTS "Users can update their own AI profile" ON user_ai_profiles;
 CREATE POLICY "Users can update their own AI profile" ON user_ai_profiles
     FOR UPDATE USING (auth.uid() = user_id);
 
-DROP POLICY IF EXISTS "Admins can view all AI profiles" ON user_ai_profiles;
 CREATE POLICY "Admins can view all AI profiles" ON user_ai_profiles
     FOR SELECT USING (
         EXISTS (
@@ -409,18 +401,15 @@ CREATE POLICY "Admins can view all AI profiles" ON user_ai_profiles
         )
     );
 
-DROP POLICY IF EXISTS "System can manage AI profiles" ON user_ai_profiles;
 CREATE POLICY "System can manage AI profiles" ON user_ai_profiles
     FOR ALL USING (true);
 
 -- personalized_reviews 테이블 RLS
 ALTER TABLE personalized_reviews ENABLE ROW LEVEL SECURITY;
 
-DROP POLICY IF EXISTS "Users can view their own personalized reviews" ON personalized_reviews;
 CREATE POLICY "Users can view their own personalized reviews" ON personalized_reviews
     FOR SELECT USING (auth.uid() = user_id);
 
-DROP POLICY IF EXISTS "Admins can view all personalized reviews" ON personalized_reviews;
 CREATE POLICY "Admins can view all personalized reviews" ON personalized_reviews
     FOR SELECT USING (
         EXISTS (
@@ -429,7 +418,6 @@ CREATE POLICY "Admins can view all personalized reviews" ON personalized_reviews
         )
     );
 
-DROP POLICY IF EXISTS "System can insert personalized reviews" ON personalized_reviews;
 CREATE POLICY "System can insert personalized reviews" ON personalized_reviews
     FOR INSERT WITH CHECK (true);
 
