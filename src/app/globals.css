@@ -264,14 +264,9 @@
   20%, 40%, 60%, 80% { transform: translateX(5px); }
 }
 
-/* 접근성 및 다크모드 스타일 */
+/* 접근성 스타일 */
 :root {
   --font-size-multiplier: 1;
-}
-
-/* 다크모드 */
-.dark {
-  color-scheme: dark;
 }
 
 /* 폰트 크기 조정 */
@@ -403,44 +398,6 @@ textarea:disabled {
 .high-contrast a:focus {
   background-color: yellow;
   color: black;
-}
-
-/* 다크모드에서의 추가 스타일 */
-.dark .bg-white {
-  background-color: rgb(17 24 39);
-}
-
-.dark .bg-gray-50 {
-  background-color: rgb(31 41 55);
-}
-
-.dark .bg-gray-100 {
-  background-color: rgb(55 65 81);
-}
-
-.dark .text-gray-900 {
-  color: rgb(243 244 246);
-}
-
-.dark .text-gray-700 {
-  color: rgb(209 213 219);
-}
-
-.dark .text-gray-600 {
-  color: rgb(156 163 175);
-}
-
-.dark .border-gray-200 {
-  border-color: rgb(75 85 99);
-}
-
-.dark .border-gray-300 {
-  border-color: rgb(107 114 128);
-}
-
-/* 다크모드에서의 포커스 링 */
-.dark .focus\:ring-blue-500:focus {
-  --tw-ring-color: rgb(96 165 250 / 0.5);
 }
 
 /* 접근성 개선을 위한 애니메이션 */
@@ -596,13 +553,6 @@ textarea:disabled {
 :root {
   --background: #ffffff;
   --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
