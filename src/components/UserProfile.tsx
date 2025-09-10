@@ -34,20 +34,11 @@ export default function UserProfile({ user }: UserProfileProps) {
       }
 
       try {
-        // 먼저 현재 사용자의 auth 정보를 가져옴
-        const { data: { user: authUser } } = await supabase.auth.getUser()
-        
-        if (!authUser) {
-          console.error('인증된 사용자 정보가 없습니다')
-          setLoading(false)
-          return
-        }
-
         // auth_id로 사용자 프로필 조회
         const { data, error } = await supabase
           .from('users')
           .select('*')
-          .eq('auth_id', authUser.id)
+          .eq('auth_id', user.id)
           .maybeSingle() // single() 대신 maybeSingle() 사용
 
         if (error) {
@@ -62,9 +53,9 @@ export default function UserProfile({ user }: UserProfileProps) {
           const { data: newProfile, error: createError } = await supabase
             .from('users')
             .insert({
-              auth_id: authUser.id,
-              email: authUser.email,
-              display_name: authUser.user_metadata?.full_name || authUser.email?.split('@')[0] || '사용자',
+              auth_id: user.id,
+              email: user.email,
+              display_name: user.user_metadata?.full_name || user.email?.split('@')[0] || '사용자',
               role: 'user'
             })
             .select()

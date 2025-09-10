@@ -77,7 +77,7 @@ export default function Home() {
                 {user.email}로 로그인되었습니다.
               </p>
             </div>
-            <UserProfile />
+            <UserProfile user={user} />
           </div>
         </div>
       </div>
