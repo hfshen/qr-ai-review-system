@@ -23,6 +23,8 @@ export default function AdminPanel() {
   const [platforms, setPlatforms] = useState<Platform[]>([])
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('overview')
+  const [editingPlatform, setEditingPlatform] = useState<Platform | null>(null)
+  const [showPlatformModal, setShowPlatformModal] = useState(false)
 
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -173,6 +175,49 @@ export default function AdminPanel() {
     }
 
     await fetchUsers()
+  }
+
+  const handleEditPlatform = (platform: Platform) => {
+    setEditingPlatform(platform)
+    setShowPlatformModal(true)
+  }
+
+  const handleSavePlatform = async (platformData: Partial<Platform>) => {
+    if (!editingPlatform) return
+
+    const { error } = await supabase
+      .from('platforms')
+      .update(platformData)
+      .eq('id', editingPlatform.id)
+
+    if (error) {
+      console.error('플랫폼 업데이트 오류:', error)
+      alert('플랫폼 업데이트에 실패했습니다.')
+    } else {
+      setPlatforms(platforms.map(platform => 
+        platform.id === editingPlatform.id ? { ...platform, ...platformData } : platform
+      ))
+      setShowPlatformModal(false)
+      setEditingPlatform(null)
+      alert('플랫폼이 성공적으로 업데이트되었습니다.')
+    }
+  }
+
+  const handleDeletePlatform = async (platformId: number) => {
+    if (!confirm('정말로 이 플랫폼을 삭제하시겠습니까?')) return
+
+    const { error } = await supabase
+      .from('platforms')
+      .delete()
+      .eq('id', platformId)
+
+    if (error) {
+      console.error('플랫폼 삭제 오류:', error)
+      alert('플랫폼 삭제에 실패했습니다.')
+    } else {
+      setPlatforms(platforms.filter(platform => platform.id !== platformId))
+      alert('플랫폼이 성공적으로 삭제되었습니다.')
+    }
   }
 
   if (loading) {
@@ -687,10 +732,16 @@ export default function AdminPanel() {
                         {platform.default_reward} 포인트
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        <button className="text-blue-600 hover:text-blue-900 mr-4">
+                        <button 
+                          onClick={() => handleEditPlatform(platform)}
+                          className="text-blue-600 hover:text-blue-900 mr-4"
+                        >
                           편집
                         </button>
-                        <button className="text-red-600 hover:text-red-900">
+                        <button 
+                          onClick={() => handleDeletePlatform(platform.id)}
+                          className="text-red-600 hover:text-red-900"
+                        >
                           삭제
                         </button>
                       </td>
@@ -736,6 +787,106 @@ export default function AdminPanel() {
         {activeTab === 'business' && (
           <BusinessDashboard />
         )}
+
+        {/* 플랫폼 편집 모달 */}
+        {showPlatformModal && editingPlatform && (
+          <PlatformEditModal
+            platform={editingPlatform}
+            onSave={handleSavePlatform}
+            onClose={() => {
+              setShowPlatformModal(false)
+              setEditingPlatform(null)
+            }}
+          />
+        )}
+      </div>
+    </div>
+  )
+}
+
+// 플랫폼 편집 모달 컴포넌트
+function PlatformEditModal({ 
+  platform, 
+  onSave, 
+  onClose 
+}: { 
+  platform: Platform
+  onSave: (data: Partial<Platform>) => void
+  onClose: () => void 
+}) {
+  const [formData, setFormData] = useState({
+    name: platform.name,
+    description: platform.description,
+    default_reward: platform.default_reward
+  })
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    onSave(formData)
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg p-6 w-full max-w-md">
+        <h3 className="text-lg font-semibold mb-4">플랫폼 편집</h3>
+        
+        <form onSubmit={handleSubmit}>
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              플랫폼 이름
+            </label>
+            <input
+              type="text"
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            />
+          </div>
+
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              설명
+            </label>
+            <textarea
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              rows={3}
+              required
+            />
+          </div>
+
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              기본 리워드 (포인트)
+            </label>
+            <input
+              type="number"
+              value={formData.default_reward}
+              onChange={(e) => setFormData({ ...formData, default_reward: parseInt(e.target.value) })}
+              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              min="1"
+              required
+            />
+          </div>
+
+          <div className="flex justify-end space-x-3">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50"
+            >
+              취소
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            >
+              저장
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   )

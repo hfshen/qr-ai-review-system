@@ -10,7 +10,6 @@ export default function Home() {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [supabase] = useState(() => {
-    // 환경 변수를 직접 확인하고 전달
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://lusdvyyrxfhzimtgdqyv.supabase.co'
     const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx1c2R2eXlyeGZoemltdGdkcXl2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTczMzEwNzQsImV4cCI6MjA3MjkwNzA3NH0.FKv__AA1fsVDrwrWYyilMCySx7IyZ9ZEzoM3-UOJOKw'
     
@@ -53,132 +52,195 @@ export default function Home() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50">
+        <div className="text-center">
+          <div className="loading-spinner w-12 h-12 mb-4"></div>
+          <p className="text-gray-600">로딩 중...</p>
+        </div>
       </div>
     )
   }
 
-  if (!supabase) {
+  if (user) {
     return (
-      <div className="text-center py-12">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 max-w-md mx-auto">
-          <h2 className="text-xl font-bold text-red-600 mb-4">설정 오류</h2>
-          <p className="text-gray-600">
-            Supabase 환경 변수가 설정되지 않았습니다. 
-            .env.local 파일을 확인해주세요.
-          </p>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+        <div className="max-w-4xl mx-auto px-4 py-8">
+          <div className="mobile-card animate-fade-in">
+            <div className="text-center mb-6">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-green-400 to-blue-500 rounded-full mb-4">
+                <span className="text-2xl">👋</span>
+              </div>
+              <h1 className="text-2xl font-bold text-gray-900 mb-2">
+                환영합니다!
+              </h1>
+              <p className="text-gray-600">
+                {user.email}로 로그인되었습니다.
+              </p>
+            </div>
+            <UserProfile />
+          </div>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="space-y-12 max-w-6xl mx-auto">
-      {/* Hero Section */}
-      <div className="text-center space-y-6 py-12">
-        <h1 className="text-5xl font-bold text-gray-900 animate-fade-in">
-          🤖 AI 자동 리뷰 플랫폼
-        </h1>
-        <p className="text-xl text-gray-600 max-w-2xl mx-auto animate-slide-up">
-          QR 코드를 스캔하고 AI가 자동으로 리뷰를 생성해드립니다
-        </p>
-      </div>
-
-      {/* Features Grid */}
-      <div className="grid md:grid-cols-2 gap-8">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200 animate-slide-up">
-          <div className="space-y-4">
-            <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-              👤 사용자
-            </h3>
-            <ul className="space-y-2 text-gray-600">
-              <li className="flex items-center gap-2">
-                <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
-                QR 코드 스캔으로 간편한 리뷰 작성
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
-                AI가 자동으로 자연스러운 리뷰 생성
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
-                여러 플랫폼에 한 번에 게시
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
-                포인트 적립으로 보상 받기
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200 animate-slide-up">
-          <div className="space-y-4">
-            <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-              🏢 에이전시
-            </h3>
-            <ul className="space-y-2 text-gray-600">
-              <li className="flex items-center gap-2">
-                <span className="w-2 h-2 bg-gray-500 rounded-full"></span>
-                지점별 QR 코드 생성 및 관리
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="w-2 h-2 bg-gray-500 rounded-full"></span>
-                플랫폼 연동 및 수수료 설정
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="w-2 h-2 bg-gray-500 rounded-full"></span>
-                리뷰 통계 및 분석
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="w-2 h-2 bg-gray-500 rounded-full"></span>
-                포인트 충전 및 관리
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
-      {/* Auth Section */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <div className="space-y-6 text-center">
-          <h3 className="text-2xl font-bold text-gray-900">시작하기</h3>
-          {user ? (
-            <div className="space-y-4">
-              <div className="text-sm text-gray-600">
-                로그인된 사용자: {user.email}
-              </div>
-              <UserProfile user={user} />
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      {/* 히어로 섹션 */}
+      <section className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-purple-600/10"></div>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-20">
+          <div className="text-center animate-fade-in">
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-blue-500 to-purple-600 rounded-3xl mb-6 animate-bounce-in">
+              <span className="text-3xl">🤖</span>
             </div>
-          ) : (
-            <AuthForm />
-          )}
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
+              AI 리뷰 플랫폼
+            </h1>
+            <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto mb-8 leading-relaxed">
+              QR 코드를 스캔하고 AI가 생성한 리뷰를 소셜 미디어에 자동으로 게시하세요.
+              <br className="hidden sm:block" />
+              포인트를 모아 다양한 혜택을 받아보세요!
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center animate-slide-up">
+              <a 
+                href="/auth" 
+                className="mobile-btn-primary hover-lift"
+              >
+                🚀 지금 시작하기
+              </a>
+              <a 
+                href="/marketplace" 
+                className="mobile-btn-secondary hover-lift"
+              >
+                🛒 마켓플레이스 둘러보기
+              </a>
+            </div>
+          </div>
         </div>
-      </div>
+      </section>
 
-      {/* How it Works */}
-      <div className="space-y-8 py-12">
-        <h3 className="text-3xl font-bold text-gray-900 text-center">리뷰 작성 방법</h3>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[
-            { step: "1", title: "QR 스캔", desc: "매장의 QR 코드를 스캔하세요" },
-            { step: "2", title: "사진 촬영", desc: "최대 3장의 사진을 촬영하세요" },
-            { step: "3", title: "별점 선택", desc: "1-5점 별점과 키워드를 선택하세요" },
-            { step: "4", title: "AI 생성", desc: "AI가 자동으로 리뷰를 생성합니다" }
-          ].map((item, index) => (
-            <div key={index} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 text-center animate-slide-up hover:shadow-md transition-shadow duration-200" style={{ animationDelay: `${index * 0.1}s` }}>
-              <div className="space-y-4">
-                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto">
-                  <span className="text-lg font-bold text-blue-600">{item.step}</span>
+      {/* 기능 소개 섹션 */}
+      <section className="py-12 lg:py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12 animate-fade-in">
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">
+              간편한 3단계 프로세스
+            </h2>
+            <p className="text-gray-600 max-w-2xl mx-auto">
+              복잡한 과정 없이 몇 번의 터치로 완성되는 리뷰 시스템
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+            <div className="mobile-card hover-lift animate-slide-up">
+              <div className="text-center">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl mb-4">
+                  <span className="text-2xl">📱</span>
                 </div>
-                <h4 className="text-lg font-bold text-gray-900">{item.title}</h4>
-                <p className="text-gray-600">{item.desc}</p>
+                <h3 className="text-xl font-semibold mb-3 text-gray-900">QR 코드 스캔</h3>
+                <p className="text-gray-600 leading-relaxed">
+                  매장의 QR 코드를 스캔하여 간편하게 리뷰를 시작하세요.
+                </p>
               </div>
             </div>
-          ))}
+            
+            <div className="mobile-card hover-lift animate-slide-up" style={{ animationDelay: '0.1s' }}>
+              <div className="text-center">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-purple-500 to-purple-600 rounded-2xl mb-4">
+                  <span className="text-2xl">🤖</span>
+                </div>
+                <h3 className="text-xl font-semibold mb-3 text-gray-900">AI 리뷰 생성</h3>
+                <p className="text-gray-600 leading-relaxed">
+                  인공지능이 당신의 경험을 바탕으로 완성도 높은 리뷰를 자동 생성합니다.
+                </p>
+              </div>
+            </div>
+            
+            <div className="mobile-card hover-lift animate-slide-up" style={{ animationDelay: '0.2s' }}>
+              <div className="text-center">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-green-500 to-green-600 rounded-2xl mb-4">
+                  <span className="text-2xl">📤</span>
+                </div>
+                <h3 className="text-xl font-semibold mb-3 text-gray-900">자동 게시</h3>
+                <p className="text-gray-600 leading-relaxed">
+                  네이버, 인스타그램, 틱톡 등 다양한 플랫폼에 리뷰를 자동으로 게시합니다.
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
+      </section>
+
+      {/* 포인트 시스템 섹션 */}
+      <section className="py-12 lg:py-20 bg-gradient-to-r from-gray-50 to-blue-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="mobile-card hover-lift animate-scale-in">
+            <div className="text-center mb-8">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-2xl mb-4">
+                <span className="text-2xl">💰</span>
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">
+                포인트 시스템
+              </h2>
+              <p className="text-gray-600 max-w-2xl mx-auto">
+                리뷰 작성부터 등급 혜택까지, 다양한 방법으로 포인트를 획득하고 사용하세요
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="text-center p-4 rounded-xl bg-white/50 hover:bg-white/80 transition-colors">
+                <div className="text-3xl mb-3">⭐</div>
+                <h4 className="font-semibold mb-2 text-gray-900">리뷰 작성</h4>
+                <p className="text-sm text-gray-600">리뷰당 50-200P</p>
+              </div>
+              <div className="text-center p-4 rounded-xl bg-white/50 hover:bg-white/80 transition-colors">
+                <div className="text-3xl mb-3">🎯</div>
+                <h4 className="font-semibold mb-2 text-gray-900">목표 달성</h4>
+                <p className="text-sm text-gray-600">보너스 포인트</p>
+              </div>
+              <div className="text-center p-4 rounded-xl bg-white/50 hover:bg-white/80 transition-colors">
+                <div className="text-3xl mb-3">🎁</div>
+                <h4 className="font-semibold mb-2 text-gray-900">포인트 사용</h4>
+                <p className="text-sm text-gray-600">다양한 혜택</p>
+              </div>
+              <div className="text-center p-4 rounded-xl bg-white/50 hover:bg-white/80 transition-colors">
+                <div className="text-3xl mb-3">🏆</div>
+                <h4 className="font-semibold mb-2 text-gray-900">등급 시스템</h4>
+                <p className="text-sm text-gray-600">더 많은 혜택</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA 섹션 */}
+      <section className="py-12 lg:py-20">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="mobile-card hover-lift animate-bounce-in">
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6">
+              지금 바로 시작해보세요!
+            </h2>
+            <p className="text-gray-600 mb-8 max-w-2xl mx-auto">
+              간편한 가입으로 AI 리뷰 플랫폼의 모든 기능을 무료로 체험해보세요.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <a 
+                href="/auth" 
+                className="mobile-btn-primary hover-lift"
+              >
+                🚀 무료로 시작하기
+              </a>
+              <a 
+                href="/marketplace" 
+                className="mobile-btn-secondary hover-lift"
+              >
+                🛒 마켓플레이스 둘러보기
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   )
 }

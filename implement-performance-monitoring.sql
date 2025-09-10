@@ -317,6 +317,7 @@ CREATE POLICY "Admins can view all performance metrics" ON performance_metrics
         )
     );
 
+DROP POLICY IF EXISTS "System can insert performance metrics" ON performance_metrics;
 CREATE POLICY "System can insert performance metrics" ON performance_metrics
     FOR INSERT WITH CHECK (true);
 
@@ -331,6 +332,7 @@ CREATE POLICY "Admins can view system health" ON system_health
         )
     );
 
+DROP POLICY IF EXISTS "System can manage system health" ON system_health;
 CREATE POLICY "System can manage system health" ON system_health
     FOR ALL USING (true);
 
@@ -345,6 +347,7 @@ CREATE POLICY "Admins can view cache stats" ON cache_stats
         )
     );
 
+DROP POLICY IF EXISTS "System can manage cache stats" ON cache_stats;
 CREATE POLICY "System can manage cache stats" ON cache_stats
     FOR ALL USING (true);
 
@@ -359,6 +362,7 @@ CREATE POLICY "Admins can view database queries" ON database_queries
         )
     );
 
+DROP POLICY IF EXISTS "System can insert database queries" ON database_queries;
 CREATE POLICY "System can insert database queries" ON database_queries
     FOR INSERT WITH CHECK (true);
 
@@ -373,6 +377,7 @@ CREATE POLICY "Admins can view error logs" ON error_logs
         )
     );
 
+DROP POLICY IF EXISTS "System can manage error logs" ON error_logs;
 CREATE POLICY "System can manage error logs" ON error_logs
     FOR ALL USING (true);
 

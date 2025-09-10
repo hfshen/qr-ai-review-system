@@ -71,14 +71,32 @@ export async function getAgencyBalance(agencyId: string): Promise<{ success: boo
       .from('agency_balances')
       .select('points_balance')
       .eq('agency_id', agencyId)
-      .single()
+      .maybeSingle()
 
-    if (error && error.code !== 'PGRST116') {
+    if (error) {
       console.error('Error fetching agency balance:', error)
       return { success: false, error: error.message }
     }
 
-    return { success: true, balance: data?.points_balance || 0 }
+    // 잔액 레코드가 없으면 0으로 초기화
+    if (!data) {
+      console.log('에이전시 잔액 레코드가 없어서 초기화합니다:', agencyId)
+      const { error: insertError } = await supabase
+        .from('agency_balances')
+        .insert({
+          agency_id: agencyId,
+          points_balance: 0
+        })
+
+      if (insertError) {
+        console.error('에이전시 잔액 초기화 오류:', insertError)
+        return { success: false, error: insertError.message }
+      }
+
+      return { success: true, balance: 0 }
+    }
+
+    return { success: true, balance: data.points_balance || 0 }
   } catch (error) {
     console.error('Error fetching agency balance:', error)
     return { success: false, error: '포인트 잔액 조회 중 오류가 발생했습니다.' }

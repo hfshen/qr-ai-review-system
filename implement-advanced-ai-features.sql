@@ -364,6 +364,7 @@ CREATE POLICY "Admins can view all sentiment analysis" ON sentiment_analysis
         )
     );
 
+DROP POLICY IF EXISTS "System can insert sentiment analysis" ON sentiment_analysis;
 CREATE POLICY "System can insert sentiment analysis" ON sentiment_analysis
     FOR INSERT WITH CHECK (true);
 
