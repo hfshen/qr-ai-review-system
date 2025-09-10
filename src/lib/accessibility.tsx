@@ -2,12 +2,6 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
 
-interface ThemeContextType {
-  theme: 'light' | 'dark' | 'system'
-  setTheme: (theme: 'light' | 'dark' | 'system') => void
-  actualTheme: 'light' | 'dark'
-}
-
 interface AccessibilityContextType {
   fontSize: 'small' | 'medium' | 'large'
   setFontSize: (size: 'small' | 'medium' | 'large') => void
@@ -28,65 +22,8 @@ interface VoiceInputContextType {
   clearTranscript: () => void
 }
 
-const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
 const AccessibilityContext = createContext<AccessibilityContextType | undefined>(undefined)
 const VoiceInputContext = createContext<VoiceInputContextType | undefined>(undefined)
-
-// 테마 프로바이더
-export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setTheme] = useState<'light' | 'dark' | 'system'>('system')
-  const [actualTheme, setActualTheme] = useState<'light' | 'dark'>('light')
-
-  useEffect(() => {
-    // 로컬 스토리지에서 테마 설정 불러오기
-    const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | 'system' | null
-    if (savedTheme) {
-      setTheme(savedTheme)
-    }
-  }, [])
-
-  useEffect(() => {
-    // 실제 테마 계산
-    const calculateActualTheme = () => {
-      if (theme === 'system') {
-        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-      }
-      return theme
-    }
-
-    const newActualTheme = calculateActualTheme()
-    setActualTheme(newActualTheme)
-
-    // HTML 요소에 테마 클래스 적용
-    document.documentElement.classList.remove('light', 'dark')
-    document.documentElement.classList.add(newActualTheme)
-
-    // 시스템 테마 변경 감지
-    if (theme === 'system') {
-      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-      const handleChange = () => {
-        const systemTheme = mediaQuery.matches ? 'dark' : 'light'
-        setActualTheme(systemTheme)
-        document.documentElement.classList.remove('light', 'dark')
-        document.documentElement.classList.add(systemTheme)
-      }
-
-      mediaQuery.addEventListener('change', handleChange)
-      return () => mediaQuery.removeEventListener('change', handleChange)
-    }
-  }, [theme])
-
-  const handleSetTheme = (newTheme: 'light' | 'dark' | 'system') => {
-    setTheme(newTheme)
-    localStorage.setItem('theme', newTheme)
-  }
-
-  return (
-    <ThemeContext.Provider value={{ theme, setTheme: handleSetTheme, actualTheme }}>
-      {children}
-    </ThemeContext.Provider>
-  )
-}
 
 // 접근성 프로바이더
 export function AccessibilityProvider({ children }: { children: ReactNode }) {
@@ -264,14 +201,6 @@ export function VoiceInputProvider({ children }: { children: ReactNode }) {
 }
 
 // 훅들
-export function useTheme() {
-  const context = useContext(ThemeContext)
-  if (context === undefined) {
-    throw new Error('useTheme must be used within a ThemeProvider')
-  }
-  return context
-}
-
 export function useAccessibility() {
   const context = useContext(AccessibilityContext)
   if (context === undefined) {

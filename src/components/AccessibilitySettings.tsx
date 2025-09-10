@@ -1,14 +1,13 @@
 'use client'
 
 import { useState } from 'react'
-import { useTheme, useAccessibility, useVoiceInput, useFocusManagement } from '@/lib/accessibility'
+import { useAccessibility, useVoiceInput, useFocusManagement } from '@/lib/accessibility'
 
 interface AccessibilitySettingsProps {
   className?: string
 }
 
 export default function AccessibilitySettings({ className = '' }: AccessibilitySettingsProps) {
-  const { theme, setTheme, actualTheme } = useTheme()
   const { 
     fontSize, 
     setFontSize, 
@@ -22,7 +21,7 @@ export default function AccessibilitySettings({ className = '' }: AccessibilityS
   const { isSupported, isListening, transcript, startListening, stopListening, clearTranscript } = useVoiceInput()
   const { focusElement, announceToScreenReader } = useFocusManagement()
   
-  const [activeTab, setActiveTab] = useState('theme')
+  const [activeTab, setActiveTab] = useState('accessibility')
   const [showVoiceInput, setShowVoiceInput] = useState(false)
 
   const tabs = [

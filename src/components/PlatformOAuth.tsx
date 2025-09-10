@@ -29,23 +29,24 @@ export default function PlatformOAuth({ platforms, onConnectionUpdate }: Platfor
     
     try {
       // 플랫폼별 OAuth URL 생성
+      const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin
       let oauthUrl = ''
       
       switch (platform.name.toLowerCase()) {
         case '네이버 리뷰':
-          oauthUrl = `/auth/naver/callback`
+          oauthUrl = `${baseUrl}/auth/naver/callback`
           break
         case '인스타그램':
-          oauthUrl = `/auth/instagram/callback`
+          oauthUrl = `${baseUrl}/auth/instagram/callback`
           break
         case '틱톡':
-          oauthUrl = `/auth/tiktok/callback`
+          oauthUrl = `${baseUrl}/auth/tiktok/callback`
           break
         case '小红书':
-          oauthUrl = `/auth/xiaohongshu/callback`
+          oauthUrl = `${baseUrl}/auth/xiaohongshu/callback`
           break
         case '구글 리뷰':
-          oauthUrl = `/auth/google/callback`
+          oauthUrl = `${baseUrl}/auth/google/callback`
           break
         default:
           throw new Error('지원하지 않는 플랫폼입니다.')
