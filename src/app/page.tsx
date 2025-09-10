@@ -195,7 +195,6 @@ export default function Home() {
         <div className="mt-6 p-4 bg-blue-50 rounded-lg text-center">
           <p className="text-sm font-medium text-blue-800">✨ 전체 과정 단 5분 완성!</p>
         </div>
-        </div>
       </section>
 
       {/* 컴팩트 포인트 시스템 섹션 */}
