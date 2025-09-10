@@ -31,9 +31,16 @@ export default function PlatformOAuth({ platforms, onConnectionUpdate }: Platfor
       // 플랫폼별 OAuth URL 생성
       const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin
       
+      // 디버깅 정보 출력
+      console.log('🔍 Platform OAuth 디버깅 정보:')
+      console.log('- NEXT_PUBLIC_SITE_URL:', process.env.NEXT_PUBLIC_SITE_URL)
+      console.log('- window.location.origin:', window.location.origin)
+      console.log('- 최종 baseUrl:', baseUrl)
+      
       // localhost가 아닌 실제 도메인인지 확인
       if (baseUrl.includes('localhost')) {
-        console.warn('Warning: Using localhost URL for OAuth redirect. Please set NEXT_PUBLIC_SITE_URL environment variable.')
+        console.warn('⚠️ Warning: Using localhost URL for OAuth redirect. Please set NEXT_PUBLIC_SITE_URL environment variable.')
+        console.warn('📝 올바른 설정: NEXT_PUBLIC_SITE_URL=https://qr-review.lolovely.com')
       }
       
       let oauthUrl = ''

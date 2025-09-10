@@ -94,9 +94,17 @@ export default function AuthForm() {
       // 환경 변수와 현재 도메인을 확인하여 올바른 리다이렉트 URL 생성
       const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin
       
+      // 디버깅 정보 출력
+      console.log('🔍 OAuth 디버깅 정보:')
+      console.log('- NEXT_PUBLIC_SITE_URL:', process.env.NEXT_PUBLIC_SITE_URL)
+      console.log('- window.location.origin:', window.location.origin)
+      console.log('- 최종 siteUrl:', siteUrl)
+      console.log('- redirectTo URL:', `${siteUrl}/auth/callback`)
+      
       // localhost가 아닌 실제 도메인인지 확인
       if (siteUrl.includes('localhost')) {
-        console.warn('Warning: Using localhost URL for OAuth redirect. Please set NEXT_PUBLIC_SITE_URL environment variable.')
+        console.warn('⚠️ Warning: Using localhost URL for OAuth redirect. Please set NEXT_PUBLIC_SITE_URL environment variable.')
+        console.warn('📝 올바른 설정: NEXT_PUBLIC_SITE_URL=https://qr-review.lolovely.com')
       }
       
       const { error } = await supabase.auth.signInWithOAuth({
