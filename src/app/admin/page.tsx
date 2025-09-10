@@ -259,23 +259,16 @@ export default function AdminPanel() {
           <p className="text-gray-600">시스템 전체를 관리하고 모니터링하세요</p>
         </div>
 
-        {/* 탭 네비게이션 */}
+        {/* 핵심 탭 네비게이션 */}
         <div className="mb-8">
-          <nav className="flex space-x-8">
+          <nav className="flex space-x-6">
             {[
               { id: 'overview', label: '개요', icon: '📊' },
               { id: 'users', label: '사용자 관리', icon: '👥' },
               { id: 'agencies', label: '에이전시 관리', icon: '🏢' },
               { id: 'branches', label: '지점 관리', icon: '📍' },
               { id: 'reviews', label: '리뷰 관리', icon: '⭐' },
-              { id: 'platforms', label: '플랫폼 관리', icon: '🔗' },
-              { id: 'keywords', label: '키워드 관리', icon: '🏷️' },
-              { id: 'marketplace', label: '마켓플레이스', icon: '🛍️' },
-              { id: 'statistics', label: '통계 대시보드', icon: '📈' },
-              { id: 'performance', label: '성능 모니터링', icon: '⚡' },
-              { id: 'analytics', label: '고급 분석', icon: '🔍' },
-              { id: 'security', label: '보안 관리', icon: '🔒' },
-              { id: 'business', label: '비즈니스 관리', icon: '💼' }
+              { id: 'platforms', label: '플랫폼 관리', icon: '🔗' }
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -436,6 +429,53 @@ export default function AdminPanel() {
                   <div className="text-2xl mb-2">🔒</div>
                   <div className="font-medium text-gray-900">보안 관리</div>
                   <div className="text-sm text-gray-500">보안 설정 및 모니터링</div>
+                </button>
+              </div>
+            </div>
+
+            {/* 시스템 관리 섹션 */}
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">시스템 관리</h3>
+              <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-4">
+                <button
+                  onClick={() => setActiveTab('keywords')}
+                  className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-left"
+                >
+                  <div className="text-2xl mb-2">🏷️</div>
+                  <div className="font-medium text-gray-900">키워드 관리</div>
+                  <div className="text-sm text-gray-500">리뷰 키워드 설정</div>
+                </button>
+                <button
+                  onClick={() => setActiveTab('performance')}
+                  className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-left"
+                >
+                  <div className="text-2xl mb-2">⚡</div>
+                  <div className="font-medium text-gray-900">성능 모니터링</div>
+                  <div className="text-sm text-gray-500">시스템 성능 추적</div>
+                </button>
+                <button
+                  onClick={() => setActiveTab('analytics')}
+                  className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-left"
+                >
+                  <div className="text-2xl mb-2">🔍</div>
+                  <div className="font-medium text-gray-900">고급 분석</div>
+                  <div className="text-sm text-gray-500">데이터 분석 도구</div>
+                </button>
+                <button
+                  onClick={() => setActiveTab('security')}
+                  className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-left"
+                >
+                  <div className="text-2xl mb-2">🔒</div>
+                  <div className="font-medium text-gray-900">보안 관리</div>
+                  <div className="text-sm text-gray-500">보안 설정 및 모니터링</div>
+                </button>
+                <button
+                  onClick={() => setActiveTab('business')}
+                  className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-left"
+                >
+                  <div className="text-2xl mb-2">💼</div>
+                  <div className="font-medium text-gray-900">비즈니스 관리</div>
+                  <div className="text-sm text-gray-500">비즈니스 설정</div>
                 </button>
               </div>
             </div>

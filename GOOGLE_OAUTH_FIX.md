@@ -12,7 +12,7 @@
 2. 올바른 프로젝트 선택 (QR 리뷰 프로젝트)
 3. **APIs & Services** → **Credentials** 이동
 
-### 2. OAuth 2.0 클라이언트 ID 수정
+### 2. OAuth 2.0 클라이언트 ID 수정너무 많은
 1. OAuth 2.0 클라이언트 ID 클릭
 2. **Authorized JavaScript origins** 섹션에서 다음 URL 추가:
    ```
