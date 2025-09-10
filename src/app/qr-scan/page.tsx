@@ -1,11 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createBrowserClient } from '@supabase/ssr'
 import { Branch, Agency } from '@/types/database'
 
-export default function QRScanPage() {
+function QRScanContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [loading, setLoading] = useState(true)
@@ -257,5 +257,20 @@ export default function QRScanPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function QRScanPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50">
+        <div className="text-center">
+          <div className="loading-spinner w-12 h-12 mb-4"></div>
+          <p className="text-gray-600">QR 코드 정보를 확인하는 중...</p>
+        </div>
+      </div>
+    }>
+      <QRScanContent />
+    </Suspense>
   )
 }
