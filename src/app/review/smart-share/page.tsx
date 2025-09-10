@@ -4,6 +4,10 @@ import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createBrowserClient } from '@supabase/ssr'
 import { Review, Branch, Agency } from '@/types/database'
+import { usePostingTracker, PostingPerformanceWidget, PostingConfirmationModal } from '@/hooks/usePostingTracker'
+import { SocialProofWidget, LiveActivityFeed } from '@/components/SocialProof'
+import { BadgeCollection, UserLevelWidget, StreakBonusWidget } from '@/hooks/useGamification'
+import { executePlatformShare, generateCaptionTemplates } from '@/lib/platform-sharing'
 
 interface PlatformConfig {
   id: string
@@ -27,6 +31,11 @@ export default function SmartPlatformSharing() {
   const [copiedPlatform, setCopiedPlatform] = useState<string | null>(null)
   const [sharedPlatform, setSharedPlatform] = useState<string | null>(null)
   const [error, setError] = useState('')
+  const [showConfirmation, setShowConfirmation] = useState(false)
+  const [currentTrackerId, setCurrentTrackerId] = useState<string | null>(null)
+  const [currentPlatformId, setCurrentPlatformId] = useState<string | null>(null)
+  const [personalizedCaptions, setPersonalizedCaptions] = useState<Record<string, string>>({})
+  const [isGeneratingCaption, setIsGeneratingCaption] = useState<string | null>(null)
   
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -151,14 +160,63 @@ export default function SmartPlatformSharing() {
     }
   }
 
+  const generatePersonalizedCaption = async (platformId: string) => {
+    if (!review || !branch || !user) return
+
+    setIsGeneratingCaption(platformId)
+    try {
+      const response = await fetch('/api/ai/personalized-caption', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          review,
+          branch,
+          platformId,
+          userId: user.id,
+          userPreferences: {
+            tone: '자연스러운',
+            length: '적당한',
+            style: '균형잡힌'
+          }
+        }),
+      })
+
+      if (!response.ok) throw new Error('개인화된 캡션 생성 실패')
+
+      const data = await response.json()
+      setPersonalizedCaptions(prev => ({
+        ...prev,
+        [platformId]: data.caption
+      }))
+    } catch (error) {
+      console.error('개인화된 캡션 생성 오류:', error)
+      // 폴백: 기본 캡션 사용
+      const config = platformConfigs.find(p => p.id === platformId)
+      if (config) {
+        const fallbackCaption = config.captionTemplate(review, branch)
+        setPersonalizedCaptions(prev => ({
+          ...prev,
+          [platformId]: fallbackCaption
+        }))
+      }
+    } finally {
+      setIsGeneratingCaption(null)
+    }
+  }
+
   const copyCaption = async (platformId: string) => {
     if (!review || !branch) return
 
-    const config = platformConfigs.find(p => p.id === platformId)
-    if (!config) return
+    // 개인화된 캡션이 없으면 먼저 생성
+    if (!personalizedCaptions[platformId]) {
+      await generatePersonalizedCaption(platformId)
+      return
+    }
 
     try {
-      const caption = config.captionTemplate(review, branch)
+      const caption = personalizedCaptions[platformId]
       await navigator.clipboard.writeText(caption)
       setCopiedPlatform(platformId)
       
@@ -174,61 +232,34 @@ export default function SmartPlatformSharing() {
   }
 
   const shareToPlatform = async (platformId: string) => {
-    if (!review || !branch) return
-
-    const config = platformConfigs.find(p => p.id === platformId)
-    if (!config) return
+    if (!review || !branch || !user) return
 
     try {
-      if (config.shareMethod === 'web-share') {
-        // Web Share API 사용
-        if (navigator.share) {
-          const shareData: any = {
-            title: `${branch.name} 리뷰`,
-            text: config.captionTemplate(review, branch)
-          }
-
-          // 이미지가 있으면 파일로 공유
-          if (review.images && review.images.length > 0) {
-            try {
-              const response = await fetch(review.images[0])
-              const blob = await response.blob()
-              const file = new File([blob], 'review.jpg', { type: 'image/jpeg' })
-              
-              if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                shareData.files = [file]
-              }
-            } catch (error) {
-              console.log('이미지 공유 실패, 텍스트만 공유')
-            }
-          }
-
-          await navigator.share(shareData)
-          setSharedPlatform(platformId)
-        } else {
-          // 폴백: 캡션만 복사
-          await copyCaption(platformId)
-        }
-      } else if (config.shareMethod === 'deeplink' && config.deeplinkUrl) {
-        // 딥링크 사용
-        const deeplinkUrl = config.deeplinkUrl(branch)
-        
-        // 먼저 캡션 복사
-        await copyCaption(platformId)
-        
-        // 딥링크 실행
-        window.location.href = deeplinkUrl
-        
-        // 폴백을 위한 타이머
-        setTimeout(() => {
-          if (confirm('네이버 앱이 설치되어 있지 않습니다. 웹으로 이동하시겠습니까?')) {
-            window.open(`https://map.naver.com/v5/search/${encodeURIComponent(branch.name)}`, '_blank')
-          }
-        }, 2000)
+      // 개인화된 캡션이 없으면 먼저 생성
+      if (!personalizedCaptions[platformId]) {
+        await generatePersonalizedCaption(platformId)
+        return
       }
 
-      // 포인트 지급
-      await awardPoints(review.id, platformId, 'share')
+      // 스마트 공유 실행
+      const result = await executePlatformShare(platformId, review, branch, review.images)
+      
+      if (result.success) {
+        setSharedPlatform(platformId)
+        
+        // 성과 추적 시작
+        const tracker = await trackShare(platformId, review.id)
+        if (tracker) {
+          setCurrentTrackerId(tracker.id)
+          setCurrentPlatformId(platformId)
+          setShowConfirmation(true)
+        }
+        
+        // 포인트 지급
+        await awardPoints(review.id, platformId, 'share')
+      } else {
+        throw new Error(result.error || '공유에 실패했습니다.')
+      }
       
     } catch (error) {
       console.error('플랫폼 공유 오류:', error)
@@ -391,6 +422,24 @@ export default function SmartPlatformSharing() {
           ))}
         </div>
 
+        {/* 소셜 증명 */}
+        <SocialProofWidget />
+
+        {/* 실시간 활동 피드 */}
+        <LiveActivityFeed />
+
+        {/* 게임화 요소 */}
+        {user && (
+          <>
+            <UserLevelWidget userId={user.id} />
+            <StreakBonusWidget userId={user.id} />
+            <BadgeCollection userId={user.id} />
+          </>
+        )}
+
+        {/* 성과 추적 */}
+        {user && <PostingPerformanceWidget userId={user.id} />}
+
         {/* 포인트 정보 */}
         <div className="mobile-card animate-fade-in mb-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">
@@ -430,6 +479,20 @@ export default function SmartPlatformSharing() {
           </div>
         </div>
       </div>
+
+      {/* 게시 완료 확인 모달 */}
+      {showConfirmation && currentTrackerId && currentPlatformId && (
+        <PostingConfirmationModal
+          isOpen={showConfirmation}
+          onClose={() => {
+            setShowConfirmation(false)
+            setCurrentTrackerId(null)
+            setCurrentPlatformId(null)
+          }}
+          trackerId={currentTrackerId}
+          platformId={currentPlatformId}
+        />
+      )}
     </div>
   )
 }
