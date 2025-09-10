@@ -56,71 +56,96 @@ CREATE POLICY "Admins can view all points" ON user_points
   FOR SELECT USING ((SELECT role FROM users WHERE id = auth.uid()) = 'admin');
 
 -- ========================================
--- 2단계: 게임화 테이블 생성
+-- 2단계: 게임화 테이블 생성 (안전한 생성)
 -- ========================================
 
 -- 사용자 캡션 히스토리 (AI 학습용)
-CREATE TABLE IF NOT EXISTS user_caption_history (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-  platform_id TEXT NOT NULL,
-  content TEXT NOT NULL,
-  review_id UUID REFERENCES reviews(id) ON DELETE CASCADE,
-  rating INTEGER,
-  keywords TEXT[],
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'user_caption_history') THEN
+        CREATE TABLE user_caption_history (
+          id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+          user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+          platform_id TEXT NOT NULL,
+          content TEXT NOT NULL,
+          review_id UUID REFERENCES reviews(id) ON DELETE CASCADE,
+          rating INTEGER,
+          keywords TEXT[],
+          created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+        );
+    END IF;
+END $$;
 
 -- 포스팅 추적 테이블
-CREATE TABLE IF NOT EXISTS posting_tracker (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-  platform_id TEXT NOT NULL,
-  review_id UUID REFERENCES reviews(id) ON DELETE CASCADE,
-  status TEXT CHECK (status IN ('pending', 'shared', 'posted', 'failed')) DEFAULT 'pending',
-  shared_at TIMESTAMP WITH TIME ZONE,
-  posted_at TIMESTAMP WITH TIME ZONE,
-  engagement JSONB, -- {likes: number, comments: number, shares: number, views: number}
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'posting_tracker') THEN
+        CREATE TABLE posting_tracker (
+          id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+          user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+          platform_id TEXT NOT NULL,
+          review_id UUID REFERENCES reviews(id) ON DELETE CASCADE,
+          status TEXT CHECK (status IN ('pending', 'shared', 'posted', 'failed')) DEFAULT 'pending',
+          shared_at TIMESTAMP WITH TIME ZONE,
+          posted_at TIMESTAMP WITH TIME ZONE,
+          engagement JSONB, -- {likes: number, comments: number, shares: number, views: number}
+          created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+          updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+        );
+    END IF;
+END $$;
 
 -- 사용자 배지 테이블
-CREATE TABLE IF NOT EXISTS user_badges (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-  badge_id TEXT NOT NULL,
-  badge_name TEXT NOT NULL,
-  badge_description TEXT,
-  badge_icon TEXT,
-  badge_color TEXT,
-  earned_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  UNIQUE(user_id, badge_id)
-);
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'user_badges') THEN
+        CREATE TABLE user_badges (
+          id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+          user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+          badge_id TEXT NOT NULL,
+          badge_name TEXT NOT NULL,
+          badge_description TEXT,
+          badge_icon TEXT,
+          badge_color TEXT,
+          earned_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+          UNIQUE(user_id, badge_id)
+        );
+    END IF;
+END $$;
 
 -- 사용자 레벨 테이블
-CREATE TABLE IF NOT EXISTS user_levels (
-  user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
-  level INTEGER NOT NULL DEFAULT 1,
-  total_points INTEGER NOT NULL DEFAULT 0,
-  level_name TEXT NOT NULL DEFAULT '리뷰 초보',
-  benefits TEXT[],
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'user_levels') THEN
+        CREATE TABLE user_levels (
+          user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+          level INTEGER NOT NULL DEFAULT 1,
+          total_points INTEGER NOT NULL DEFAULT 0,
+          level_name TEXT NOT NULL DEFAULT '리뷰 초보',
+          benefits TEXT[],
+          created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+          updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+        );
+    END IF;
+END $$;
 
 -- 소셜 증명 통계 테이블 (캐시용)
-CREATE TABLE IF NOT EXISTS social_proof_stats (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  platform_id TEXT NOT NULL,
-  date DATE NOT NULL,
-  total_shares INTEGER DEFAULT 0,
-  total_posts INTEGER DEFAULT 0,
-  success_rate NUMERIC DEFAULT 0,
-  avg_engagement NUMERIC DEFAULT 0,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  UNIQUE(platform_id, date)
-);
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'social_proof_stats') THEN
+        CREATE TABLE social_proof_stats (
+          id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+          platform_id TEXT NOT NULL,
+          date DATE NOT NULL,
+          total_shares INTEGER DEFAULT 0,
+          total_posts INTEGER DEFAULT 0,
+          success_rate NUMERIC DEFAULT 0,
+          avg_engagement NUMERIC DEFAULT 0,
+          created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+          UNIQUE(platform_id, date)
+        );
+    END IF;
+END $$;
 
 -- ========================================
 -- 3단계: 인덱스 생성
@@ -143,6 +168,22 @@ ALTER TABLE posting_tracker ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_badges ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_levels ENABLE ROW LEVEL SECURITY;
 ALTER TABLE social_proof_stats ENABLE ROW LEVEL SECURITY;
+
+-- 기존 정책 삭제 (있다면)
+DROP POLICY IF EXISTS "Users can view their own caption history" ON user_caption_history;
+DROP POLICY IF EXISTS "Users can insert their own caption history" ON user_caption_history;
+DROP POLICY IF EXISTS "Users can view their own posting tracker" ON posting_tracker;
+DROP POLICY IF EXISTS "Users can insert their own posting tracker" ON posting_tracker;
+DROP POLICY IF EXISTS "Users can update their own posting tracker" ON posting_tracker;
+DROP POLICY IF EXISTS "Users can view their own badges" ON user_badges;
+DROP POLICY IF EXISTS "Users can insert their own badges" ON user_badges;
+DROP POLICY IF EXISTS "Users can view their own level" ON user_levels;
+DROP POLICY IF EXISTS "Users can update their own level" ON user_levels;
+DROP POLICY IF EXISTS "Admins can view all caption history" ON user_caption_history;
+DROP POLICY IF EXISTS "Admins can view all posting tracker" ON posting_tracker;
+DROP POLICY IF EXISTS "Admins can view all badges" ON user_badges;
+DROP POLICY IF EXISTS "Admins can view all levels" ON user_levels;
+DROP POLICY IF EXISTS "Everyone can view social proof stats" ON social_proof_stats;
 
 -- 사용자 데이터 접근 정책
 CREATE POLICY "Users can view their own caption history" ON user_caption_history
