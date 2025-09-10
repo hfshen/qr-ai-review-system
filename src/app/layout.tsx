@@ -3,7 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Header from '@/components/Header'
 import PWAProvider from '@/components/PWAProvider'
-import { ThemeProvider, AccessibilityProvider, VoiceInputProvider } from '@/lib/accessibility'
+import { AccessibilityProvider, VoiceInputProvider } from '@/lib/accessibility'
 
 const inter = Inter({ 
   subsets: ["latin"],
@@ -62,22 +62,20 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body className={`${inter.variable} font-sans antialiased`}>
-        <ThemeProvider>
-          <AccessibilityProvider>
-            <VoiceInputProvider>
-              <PWAProvider>
-                <div className="min-h-screen gradient-bg">
-                  <Header />
-                  
-                  {/* Main Content */}
-                  <main id="main-content" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                    {children}
-                  </main>
-                </div>
-              </PWAProvider>
-            </VoiceInputProvider>
-          </AccessibilityProvider>
-        </ThemeProvider>
+        <AccessibilityProvider>
+          <VoiceInputProvider>
+            <PWAProvider>
+              <div className="min-h-screen gradient-bg">
+                <Header />
+                
+                {/* Main Content */}
+                <main id="main-content" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                  {children}
+                </main>
+              </div>
+            </PWAProvider>
+          </VoiceInputProvider>
+        </AccessibilityProvider>
       </body>
     </html>
   );
