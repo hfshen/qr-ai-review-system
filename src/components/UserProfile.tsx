@@ -84,7 +84,7 @@ export default function UserProfile({ user }: UserProfileProps) {
   }, [user?.id, supabase])
 
   const updateProfile = async (updates: Partial<DatabaseUser>) => {
-    if (!profile || !supabase) return
+    if (!profile || !supabase || !user) return
 
     setUpdating(true)
     try {
