@@ -12,6 +12,7 @@ export default function Header() {
   const [profile, setProfile] = useState<DatabaseUser | null>(null)
   const [loading, setLoading] = useState(true)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [mounted, setMounted] = useState(false)
 
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -19,6 +20,8 @@ export default function Header() {
   )
 
   useEffect(() => {
+    setMounted(true)
+    
     const getUser = async () => {
       const { data: { user } } = await supabase.auth.getUser()
       setUser(user)
@@ -57,6 +60,59 @@ export default function Header() {
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen)
+  }
+
+  // Hydration 불일치 방지를 위해 마운트되지 않았을 때는 기본 상태 표시
+  if (!mounted) {
+    return (
+      <>
+        {/* 모바일 헤더 - 기본 상태 */}
+        <header className="mobile-header animate-slide-down">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+                <span className="text-white text-sm font-bold">AI</span>
+              </div>
+              <h1 className="text-lg font-bold text-gray-900">AI 리뷰</h1>
+            </div>
+            
+            <div className="flex items-center space-x-3">
+              <a 
+                href="/auth" 
+                className="mobile-btn-primary text-sm py-2 px-4"
+              >
+                로그인
+              </a>
+            </div>
+          </div>
+        </header>
+
+        {/* 데스크톱 헤더 - 기본 상태 */}
+        <nav className="hidden lg:block bg-white/80 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center h-16">
+              <div className="flex items-center">
+                <h1 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                  🤖 AI 리뷰 플랫폼
+                </h1>
+              </div>
+              
+              <div className="flex items-center space-x-6">
+                <a href="/" className="text-gray-600 hover:text-blue-600 font-medium transition-colors duration-200">
+                  홈
+                </a>
+                <a href="/marketplace" className="text-gray-600 hover:text-blue-600 font-medium transition-colors duration-200">
+                  마켓플레이스
+                </a>
+                <a href="/auth" className="text-gray-600 hover:text-blue-600 font-medium transition-colors duration-200">
+                  로그인
+                </a>
+              </div>
+            </div>
+          </div>
+        </nav>
+      </>
+    )
   }
 
   return (
