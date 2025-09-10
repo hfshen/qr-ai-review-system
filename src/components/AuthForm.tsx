@@ -216,6 +216,7 @@ export default function AuthForm() {
             onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
             className="mobile-input"
             placeholder="이메일을 입력하세요"
+            autoComplete="email"
           />
         </div>
 
@@ -231,6 +232,7 @@ export default function AuthForm() {
             onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
             className="mobile-input"
             placeholder="비밀번호를 입력하세요"
+            autoComplete={isLogin ? "current-password" : "new-password"}
           />
         </div>
 

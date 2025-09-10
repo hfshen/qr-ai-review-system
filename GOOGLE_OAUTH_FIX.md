@@ -21,6 +21,7 @@
 
 3. **Authorized redirect URIs** 섹션에서 다음 URL들 추가:
    ```
+   https://lusdvyyrxfhzimtgdqyv.supabase.co/auth/v1/callback
    https://qr-review.lolovely.com/auth/callback
    https://qr-review.lolovely.com/auth/google/callback
    ```
