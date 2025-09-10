@@ -72,8 +72,19 @@ BEGIN
         END IF;
         
         -- name 컬럼에 NOT NULL 제약조건 추가 (기존 데이터가 있다면 먼저 처리)
-        UPDATE review_keywords SET name = '기본키워드' WHERE name IS NULL;
+        UPDATE review_keywords SET name = '기본키워드_' || id::text WHERE name IS NULL;
         ALTER TABLE review_keywords ALTER COLUMN name SET NOT NULL;
+        
+        -- 중복된 name 값 처리 (고유하게 만들기)
+        WITH duplicates AS (
+            SELECT rk.name, ROW_NUMBER() OVER (PARTITION BY rk.name ORDER BY rk.created_at) as rn
+            FROM review_keywords rk
+        )
+        UPDATE review_keywords 
+        SET name = review_keywords.name || '_' || review_keywords.id::text
+        FROM duplicates 
+        WHERE review_keywords.name = duplicates.name 
+        AND duplicates.rn > 1;
         
         -- name 컬럼에 UNIQUE 제약조건 추가
         BEGIN

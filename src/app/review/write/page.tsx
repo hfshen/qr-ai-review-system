@@ -169,7 +169,7 @@ export default function ReviewWritePage() {
       if (reviewError) throw reviewError
 
       // 플랫폼별 리뷰 생성 및 포스팅 페이지로 이동
-      router.push(`/review/platforms?review_id=${reviewData.id}`)
+      router.push(`/review/smart-share?review_id=${reviewData.id}`)
     } catch (error: any) {
       console.error('리뷰 저장 오류:', error)
       setError(error.message || '리뷰 저장 중 오류가 발생했습니다.')
