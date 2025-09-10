@@ -288,10 +288,40 @@ CREATE TABLE IF NOT EXISTS user_subscriptions (
 );
 
 -- =====================================================
--- 8. 보안 강화 시스템 데이터베이스 스키마
+-- 8. 마켓플레이스 시스템 데이터베이스 스키마
 -- =====================================================
 
--- 8.1 2단계 인증 테이블
+-- 8.1 마켓플레이스 상품 테이블
+CREATE TABLE IF NOT EXISTS marketplace_products (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    points_cost INTEGER NOT NULL CHECK (points_cost > 0),
+    image_url TEXT,
+    category VARCHAR(50) NOT NULL DEFAULT 'general' CHECK (category IN ('general', 'coupon', 'giftcard', 'service')),
+    is_active BOOLEAN NOT NULL DEFAULT true,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- 8.2 상품 구매 기록 테이블
+CREATE TABLE IF NOT EXISTS product_purchases (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    product_id UUID NOT NULL REFERENCES marketplace_products(id) ON DELETE CASCADE,
+    points_spent INTEGER NOT NULL CHECK (points_spent > 0),
+    purchase_date TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    status VARCHAR(20) NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'completed', 'cancelled')),
+    redemption_code VARCHAR(255),
+    notes TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- =====================================================
+-- 9. 보안 강화 시스템 데이터베이스 스키마
+-- =====================================================
+
+-- 9.1 2단계 인증 테이블
 CREATE TABLE IF NOT EXISTS two_factor_auth (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -384,6 +414,12 @@ CREATE TRIGGER trigger_update_user_subscriptions_updated_at
     BEFORE UPDATE ON user_subscriptions
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+-- 마켓플레이스 트리거
+DROP TRIGGER IF EXISTS trigger_update_marketplace_products_updated_at ON marketplace_products;
+CREATE TRIGGER trigger_update_marketplace_products_updated_at
+    BEFORE UPDATE ON marketplace_products
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
 -- 보안 강화 트리거
 DROP TRIGGER IF EXISTS trigger_update_two_factor_auth_updated_at ON two_factor_auth;
 CREATE TRIGGER trigger_update_two_factor_auth_updated_at
@@ -472,6 +508,39 @@ CREATE POLICY "Users can view their own custom reports" ON custom_reports
 
 DROP POLICY IF EXISTS "Admins can view all custom reports" ON custom_reports;
 CREATE POLICY "Admins can view all custom reports" ON custom_reports
+    FOR SELECT USING (
+        EXISTS (
+            SELECT 1 FROM users 
+            WHERE id = auth.uid() AND role = 'admin'
+        )
+    );
+
+-- 마켓플레이스 RLS 정책
+ALTER TABLE marketplace_products ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Everyone can view active marketplace products" ON marketplace_products;
+CREATE POLICY "Everyone can view active marketplace products" ON marketplace_products
+    FOR SELECT USING (is_active = true);
+
+DROP POLICY IF EXISTS "Admins can manage marketplace products" ON marketplace_products;
+CREATE POLICY "Admins can manage marketplace products" ON marketplace_products
+    FOR ALL USING (
+        EXISTS (
+            SELECT 1 FROM users 
+            WHERE id = auth.uid() AND role = 'admin'
+        )
+    );
+
+ALTER TABLE product_purchases ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can view their own purchases" ON product_purchases;
+CREATE POLICY "Users can view their own purchases" ON product_purchases
+    FOR SELECT USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can insert their own purchases" ON product_purchases;
+CREATE POLICY "Users can insert their own purchases" ON product_purchases
+    FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Admins can view all purchases" ON product_purchases;
+CREATE POLICY "Admins can view all purchases" ON product_purchases
     FOR SELECT USING (
         EXISTS (
             SELECT 1 FROM users 

@@ -8,6 +8,10 @@ import Link from 'next/link'
 import KeywordManager from '@/components/KeywordManager'
 import StatisticsDashboard from '@/components/StatisticsDashboard'
 import MarketplaceProducts from '@/components/MarketplaceProducts'
+import PerformanceDashboard from '@/components/PerformanceDashboard'
+import AdvancedAnalyticsDashboard from '@/components/AdvancedAnalyticsDashboard'
+import SecurityDashboard from '@/components/SecurityDashboard'
+import BusinessDashboard from '@/components/BusinessDashboard'
 
 export default function AdminPanel() {
   const [user, setUser] = useState<User | null>(null)
@@ -214,26 +218,31 @@ export default function AdminPanel() {
         <div className="mb-8">
           <nav className="flex space-x-8">
             {[
-              { id: 'overview', label: '개요' },
-              { id: 'users', label: '사용자 관리' },
-              { id: 'agencies', label: '에이전시 관리' },
-              { id: 'branches', label: '지점 관리' },
-              { id: 'reviews', label: '리뷰 관리' },
-              { id: 'platforms', label: '플랫폼 관리' },
-              { id: 'keywords', label: '키워드 관리' },
-              { id: 'marketplace', label: '마켓플레이스' },
-              { id: 'statistics', label: '통계 대시보드' }
+              { id: 'overview', label: '개요', icon: '📊' },
+              { id: 'users', label: '사용자 관리', icon: '👥' },
+              { id: 'agencies', label: '에이전시 관리', icon: '🏢' },
+              { id: 'branches', label: '지점 관리', icon: '📍' },
+              { id: 'reviews', label: '리뷰 관리', icon: '⭐' },
+              { id: 'platforms', label: '플랫폼 관리', icon: '🔗' },
+              { id: 'keywords', label: '키워드 관리', icon: '🏷️' },
+              { id: 'marketplace', label: '마켓플레이스', icon: '🛍️' },
+              { id: 'statistics', label: '통계 대시보드', icon: '📈' },
+              { id: 'performance', label: '성능 모니터링', icon: '⚡' },
+              { id: 'analytics', label: '고급 분석', icon: '🔍' },
+              { id: 'security', label: '보안 관리', icon: '🔒' },
+              { id: 'business', label: '비즈니스 관리', icon: '💼' }
             ].map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                className={`py-2 px-3 border-b-2 font-medium text-sm flex items-center space-x-2 ${
                   activeTab === tab.id
                     ? 'border-blue-500 text-blue-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
-                {tab.label}
+                <span>{tab.icon}</span>
+                <span>{tab.label}</span>
               </button>
             ))}
           </nav>
@@ -241,22 +250,149 @@ export default function AdminPanel() {
 
         {/* 개요 탭 */}
         {activeTab === 'overview' && (
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">총 사용자</h3>
-              <p className="text-3xl font-bold text-blue-600">{users.length}</p>
+          <div className="space-y-6">
+            {/* 주요 통계 카드 */}
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-500">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">총 사용자</h3>
+                    <p className="text-3xl font-bold text-blue-600">{users.length}</p>
+                    <p className="text-sm text-gray-500 mt-1">전체 등록 사용자</p>
+                  </div>
+                  <div className="text-4xl text-blue-500">👥</div>
+                </div>
+              </div>
+              <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-green-500">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">총 에이전시</h3>
+                    <p className="text-3xl font-bold text-green-600">{agencies.length}</p>
+                    <p className="text-sm text-gray-500 mt-1">등록된 에이전시</p>
+                  </div>
+                  <div className="text-4xl text-green-500">🏢</div>
+                </div>
+              </div>
+              <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-purple-500">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">총 지점</h3>
+                    <p className="text-3xl font-bold text-purple-600">{branches.length}</p>
+                    <p className="text-sm text-gray-500 mt-1">QR 코드 생성된 지점</p>
+                  </div>
+                  <div className="text-4xl text-purple-500">📍</div>
+                </div>
+              </div>
+              <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-orange-500">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">총 리뷰</h3>
+                    <p className="text-3xl font-bold text-orange-600">{reviews.length}</p>
+                    <p className="text-sm text-gray-500 mt-1">작성된 리뷰</p>
+                  </div>
+                  <div className="text-4xl text-orange-500">⭐</div>
+                </div>
+              </div>
             </div>
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">총 에이전시</h3>
-              <p className="text-3xl font-bold text-green-600">{agencies.length}</p>
+
+            {/* 추가 통계 */}
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="bg-white rounded-lg shadow-md p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">플랫폼 연결 현황</h3>
+                <div className="space-y-3">
+                  {platforms.map((platform) => (
+                    <div key={platform.id} className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">{platform.name}</span>
+                      <span className="text-sm font-medium text-gray-900">{platform.default_reward}P</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              <div className="bg-white rounded-lg shadow-md p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">최근 활동</h3>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-600">오늘 리뷰</span>
+                    <span className="text-sm font-medium text-gray-900">
+                      {reviews.filter(r => new Date(r.created_at).toDateString() === new Date().toDateString()).length}개
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-600">이번 주 리뷰</span>
+                    <span className="text-sm font-medium text-gray-900">
+                      {reviews.filter(r => {
+                        const weekAgo = new Date();
+                        weekAgo.setDate(weekAgo.getDate() - 7);
+                        return new Date(r.created_at) > weekAgo;
+                      }).length}개
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-600">평균 별점</span>
+                    <span className="text-sm font-medium text-gray-900">
+                      {reviews.length > 0 ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1) : '0.0'}점
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-lg shadow-md p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">시스템 상태</h3>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-600">데이터베이스</span>
+                    <span className="text-sm font-medium text-green-600">정상</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-600">API 서버</span>
+                    <span className="text-sm font-medium text-green-600">정상</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-600">AI 서비스</span>
+                    <span className="text-sm font-medium text-green-600">정상</span>
+                  </div>
+                </div>
+              </div>
             </div>
+
+            {/* 빠른 액션 버튼 */}
             <div className="bg-white rounded-lg shadow-md p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">총 지점</h3>
-              <p className="text-3xl font-bold text-purple-600">{branches.length}</p>
-            </div>
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">총 리뷰</h3>
-              <p className="text-3xl font-bold text-orange-600">{reviews.length}</p>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">빠른 액션</h3>
+              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <button
+                  onClick={() => setActiveTab('users')}
+                  className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-left"
+                >
+                  <div className="text-2xl mb-2">👥</div>
+                  <div className="font-medium text-gray-900">사용자 관리</div>
+                  <div className="text-sm text-gray-500">사용자 권한 및 정보 관리</div>
+                </button>
+                <button
+                  onClick={() => setActiveTab('marketplace')}
+                  className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-left"
+                >
+                  <div className="text-2xl mb-2">🛍️</div>
+                  <div className="font-medium text-gray-900">마켓플레이스</div>
+                  <div className="text-sm text-gray-500">상품 및 구매 관리</div>
+                </button>
+                <button
+                  onClick={() => setActiveTab('statistics')}
+                  className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-left"
+                >
+                  <div className="text-2xl mb-2">📈</div>
+                  <div className="font-medium text-gray-900">통계 분석</div>
+                  <div className="text-sm text-gray-500">상세 통계 및 분석</div>
+                </button>
+                <button
+                  onClick={() => setActiveTab('security')}
+                  className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-left"
+                >
+                  <div className="text-2xl mb-2">🔒</div>
+                  <div className="font-medium text-gray-900">보안 관리</div>
+                  <div className="text-sm text-gray-500">보안 설정 및 모니터링</div>
+                </button>
+              </div>
             </div>
           </div>
         )}
@@ -579,6 +715,26 @@ export default function AdminPanel() {
         {/* 통계 대시보드 탭 */}
         {activeTab === 'statistics' && (
           <StatisticsDashboard />
+        )}
+
+        {/* 성능 모니터링 탭 */}
+        {activeTab === 'performance' && (
+          <PerformanceDashboard />
+        )}
+
+        {/* 고급 분석 탭 */}
+        {activeTab === 'analytics' && (
+          <AdvancedAnalyticsDashboard />
+        )}
+
+        {/* 보안 관리 탭 */}
+        {activeTab === 'security' && (
+          <SecurityDashboard />
+        )}
+
+        {/* 비즈니스 관리 탭 */}
+        {activeTab === 'business' && (
+          <BusinessDashboard />
         )}
       </div>
     </div>
