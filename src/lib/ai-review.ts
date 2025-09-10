@@ -179,7 +179,7 @@ export function convertImageToBase64(file: File): Promise<string> {
     }
     reader.onerror = reject
     reader.readAsDataURL(file)
-  }
+  })
 }
 
 // 여러 이미지를 Base64로 변환

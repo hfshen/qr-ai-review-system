@@ -131,11 +131,11 @@ async function analyzeUserPatterns(userId: string, platformId: string) {
 
 // 개인화된 프롬프트 생성
 function generatePersonalizedPrompt(
-  review: any, 
-  branch: any, 
+  review: { rating: number; keywords: string[]; content: string }, 
+  branch: { name: string; address: string; category: string }, 
   platformId: string, 
-  userPatterns: any, 
-  userPreferences: any,
+  userPatterns: { captionStyle: string; engagementLevel: string; reviewPatterns: { averageRating: number; commonKeywords: string[] }; platformPreference: string; optimalPostingTime: string }, 
+  userPreferences: { tone: string; length: string; emoji: boolean },
   previousCaptions: string[]
 ) {
   const platformTemplates = {
@@ -203,7 +203,7 @@ ${previousCaptions.slice(0, 3).map(caption => `- ${caption.substring(0, 50)}...`
 }
 
 // 캡션 스타일 분석
-function analyzeCaptionStyle(captions: any[]) {
+function analyzeCaptionStyle(captions: { content: string }[]) {
   if (captions.length === 0) return 'balanced'
   
   const avgLength = captions.reduce((sum, c) => sum + c.content.length, 0) / captions.length
@@ -214,7 +214,7 @@ function analyzeCaptionStyle(captions: any[]) {
 }
 
 // 참여도 수준 분석
-function analyzeEngagementLevel(pointHistory: any[]) {
+function analyzeEngagementLevel(pointHistory: { points: number; source: string }[]) {
   if (pointHistory.length === 0) return 'medium'
   
   const avgPoints = pointHistory.reduce((sum, p) => sum + p.points, 0) / pointHistory.length
@@ -225,7 +225,7 @@ function analyzeEngagementLevel(pointHistory: any[]) {
 }
 
 // 리뷰 패턴 분석
-function analyzeReviewPatterns(reviewHistory: any[]) {
+function analyzeReviewPatterns(reviewHistory: { rating: number; keywords: string[] }[]) {
   if (reviewHistory.length === 0) return { averageRating: 4, commonKeywords: [] }
   
   const avgRating = reviewHistory.reduce((sum, r) => sum + r.rating, 0) / reviewHistory.length
@@ -244,7 +244,7 @@ function analyzeReviewPatterns(reviewHistory: any[]) {
 }
 
 // 플랫폼 선호도 분석
-function analyzePlatformPreference(pointHistory: any[]) {
+function analyzePlatformPreference(pointHistory: { source: string }[]) {
   if (pointHistory.length === 0) return 'neutral'
   
   const platformCounts = pointHistory.reduce((acc, p) => {
@@ -260,7 +260,7 @@ function analyzePlatformPreference(pointHistory: any[]) {
 }
 
 // 포스팅 시간 분석
-function analyzePostingTime(pointHistory: any[]) {
+function analyzePostingTime(pointHistory: { created_at: string }[]) {
   if (pointHistory.length === 0) return 'anytime'
   
   const hours = pointHistory.map(p => new Date(p.created_at).getHours())
@@ -277,7 +277,7 @@ async function saveCaptionForLearning(
   userId: string, 
   platformId: string, 
   caption: string, 
-  review: any
+  review: { id: string; rating: number; keywords: string[] }
 ) {
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
