@@ -18,6 +18,7 @@ const nextConfig: NextConfig = {
     domains: ['localhost'],
     unoptimized: true, // Vercel에서 이미지 최적화 문제 방지
   },
+  
 };
 
 export default nextConfig;

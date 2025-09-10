@@ -1,23 +1,24 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createBrowserClient } from '@supabase/ssr'
 import { Branch, ReviewKeyword } from '@/types/database'
 
-export default function ReviewWritePage() {
+function ReviewWriteContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [branch, setBranch] = useState<Branch | null>(null)
   const [keywords, setKeywords] = useState<ReviewKeyword[]>([])
-  const [selectedKeywords, setSelectedKeywords] = useState<string[]>([])
+  const [selectedKeywords, setSelectedKeywords] = useState<(string | number)[]>([])
   const [rating, setRating] = useState(0)
   const [images, setImages] = useState<File[]>([])
   const [aiReview, setAiReview] = useState('')
   const [isGeneratingAI, setIsGeneratingAI] = useState(false)
   const [userId, setUserId] = useState<string | null>(null)
+  const [error, setError] = useState('')
   
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -80,7 +81,7 @@ export default function ReviewWritePage() {
     setImages(prev => prev.filter((_, i) => i !== index))
   }
 
-  const toggleKeyword = (keywordId: string) => {
+  const toggleKeyword = (keywordId: string | number) => {
     setSelectedKeywords(prev => 
       prev.includes(keywordId) 
         ? prev.filter(id => id !== keywordId)
@@ -100,7 +101,7 @@ export default function ReviewWritePage() {
     try {
       const selectedKeywordNames = keywords
         .filter(k => selectedKeywords.includes(k.id))
-        .map(k => k.name)
+        .map(k => k.keyword || k.id)
 
       const response = await fetch('/api/ai/generate-review', {
         method: 'POST',
@@ -109,7 +110,7 @@ export default function ReviewWritePage() {
         },
         body: JSON.stringify({
           branchName: branch.name,
-          rating: rating,
+          rating: rating.toString(),
           keywords: selectedKeywordNames,
           images: images.length > 0 ? '이미지가 첨부되었습니다.' : '이미지 없음'
         }),
@@ -157,7 +158,7 @@ export default function ReviewWritePage() {
         .insert({
           branch_id: branch.id,
           user_id: userId,
-          rating: rating,
+          rating: rating.toString(),
           content: aiReview || '',
           keywords: selectedKeywords,
           images: imageUrls,
@@ -265,7 +266,7 @@ export default function ReviewWritePage() {
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
-                {keyword.name}
+                {keyword.keyword || keyword.id}
               </button>
             ))}
           </div>
@@ -280,7 +281,11 @@ export default function ReviewWritePage() {
             사진을 업로드해주세요 (선택사항)
           </h3>
           <div className="space-y-4">
+            <label htmlFor="image-upload" className="block text-sm font-medium text-gray-700 mb-2">
+              사진을 업로드해주세요 (선택사항)
+            </label>
             <input
+              id="image-upload"
               type="file"
               accept="image/*"
               multiple
@@ -375,5 +380,20 @@ export default function ReviewWritePage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function ReviewWritePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50">
+        <div className="text-center">
+          <div className="loading-spinner w-12 h-12 mb-4"></div>
+          <p className="text-gray-600">리뷰 작성 페이지를 준비하는 중...</p>
+        </div>
+      </div>
+    }>
+      <ReviewWriteContent />
+    </Suspense>
   )
 }

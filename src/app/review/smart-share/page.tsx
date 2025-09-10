@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createBrowserClient } from '@supabase/ssr'
 import { Review, Branch, Agency } from '@/types/database'
@@ -21,7 +21,7 @@ interface PlatformConfig {
   deeplinkUrl?: (branch: Branch) => string
 }
 
-export default function SmartPlatformSharing() {
+function SmartPlatformSharingContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [loading, setLoading] = useState(true)
@@ -36,6 +36,7 @@ export default function SmartPlatformSharing() {
   const [currentPlatformId, setCurrentPlatformId] = useState<string | null>(null)
   const [personalizedCaptions, setPersonalizedCaptions] = useState<Record<string, string>>({})
   const [isGeneratingCaption, setIsGeneratingCaption] = useState<string | null>(null)
+  const [user, setUser] = useState<any>(null)
   
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -58,13 +59,13 @@ export default function SmartPlatformSharing() {
       ],
       captionTemplate: (review, branch) => {
         const ratingStars = '⭐'.repeat(review.rating)
-        return `📍 ${branch.name}\n\n${ratingStars} ${review.rating}/5점\n\n${review.content}\n\n#${branch.name} #리뷰 #방문후기`
+        return `📍 ${branch.name}\n\n${ratingStars} ${review.rating}/5점\n\n${(review as any).content || (review as any).text || ''}\n\n#${branch.name} #리뷰 #방문후기`
       },
       shareMethod: 'deeplink',
       deeplinkUrl: (branch) => {
         // 네이버 지도 딥링크 (실제 좌표 사용)
-        const lat = branch.latitude || 37.5665
-        const lng = branch.longitude || 126.9780
+        const lat = (branch as any).latitude || 37.5665
+        const lng = (branch as any).longitude || 126.9780
         return `nmap://place?lat=${lat}&lng=${lng}&name=${encodeURIComponent(branch.name)}&appname=${encodeURIComponent(window.location.origin)}`
       }
     },
@@ -92,7 +93,7 @@ export default function SmartPlatformSharing() {
           '#맛스타그램'
         ].join(' ')
         
-        return `${review.content}\n\n📍 ${branch.name} ${'⭐'.repeat(review.rating)}\n\n${hashtags}`
+        return `${(review as any).content || (review as any).text || ''}\n\n📍 ${branch.name} ${'⭐'.repeat(review.rating)}\n\n${hashtags}`
       },
       shareMethod: 'web-share'
     },
@@ -110,7 +111,7 @@ export default function SmartPlatformSharing() {
       ],
       captionTemplate: (review, branch) => {
         // 중국어 리뷰 템플릿 (스토리형)
-        return `📍 ${branch.name}\n\n今天和朋友一起去了${branch.name}，环境真的很不错！\n\n${'⭐'.repeat(review.rating)} 评分：${review.rating}/5\n\n${review.content}\n\n#${branch.name} #探店 #美食 #推荐 #生活记录`
+        return `📍 ${branch.name}\n\n今天和朋友一起去了${branch.name}，环境真的很不错！\n\n${'⭐'.repeat(review.rating)} 评分：${review.rating}/5\n\n${(review as any).content || (review as any).text || ''}\n\n#${branch.name} #探店 #美食 #推荐 #生活记录`
       },
       shareMethod: 'web-share'
     }
@@ -242,7 +243,7 @@ export default function SmartPlatformSharing() {
       }
 
       // 스마트 공유 실행
-      const result = await executePlatformShare(platformId, review, branch, review.images)
+      const result = await executePlatformShare(platformId, review, branch, (review as any).images || [])
       
       if (result.success) {
         setSharedPlatform(platformId)
@@ -267,6 +268,27 @@ export default function SmartPlatformSharing() {
     }
   }
 
+  const trackShare = async (platformId: string, reviewId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('posting_trackers')
+        .insert({
+          user_id: user?.id,
+          platform_id: platformId,
+          review_id: reviewId,
+          status: 'shared'
+        })
+        .select()
+        .single()
+
+      if (error) throw error
+      return data
+    } catch (error) {
+      console.error('성과 추적 오류:', error)
+      return null
+    }
+  }
+
   const awardPoints = async (reviewId: string, platformId: string, action: string) => {
     try {
       const points = action === 'caption_copy' ? 10 : 20
@@ -274,7 +296,7 @@ export default function SmartPlatformSharing() {
       const { error } = await supabase
         .from('user_points')
         .insert({
-          user_id: review.user_id,
+          user_id: review?.user_id,
           points: points,
           source: `${platformId}_${action}`,
           description: `${platformId} ${action} 포인트`
@@ -359,7 +381,7 @@ export default function SmartPlatformSharing() {
                 </div>
               </div>
               <div className="bg-gray-50 rounded-lg p-3">
-                <p className="text-sm text-gray-700">{review.content}</p>
+                <p className="text-sm text-gray-700">{(review as any).content || (review as any).text || ''}</p>
               </div>
             </div>
           </div>
@@ -494,5 +516,20 @@ export default function SmartPlatformSharing() {
         />
       )}
     </div>
+  )
+}
+
+export default function SmartPlatformSharing() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50">
+        <div className="text-center">
+          <div className="loading-spinner w-12 h-12 mb-4"></div>
+          <p className="text-gray-600">스마트 공유 페이지를 준비하는 중...</p>
+        </div>
+      </div>
+    }>
+      <SmartPlatformSharingContent />
+    </Suspense>
   )
 }

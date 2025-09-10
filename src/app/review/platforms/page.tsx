@@ -1,11 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createBrowserClient } from '@supabase/ssr'
 import { Review, Platform, AgencyPlatform } from '@/types/database'
 
-export default function PlatformPostingPage() {
+function PlatformPostingContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [loading, setLoading] = useState(true)
@@ -366,5 +366,20 @@ export default function PlatformPostingPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function PlatformPostingPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50">
+        <div className="text-center">
+          <div className="loading-spinner w-12 h-12 mb-4"></div>
+          <p className="text-gray-600">플랫폼 포스팅 페이지를 준비하는 중...</p>
+        </div>
+      </div>
+    }>
+      <PlatformPostingContent />
+    </Suspense>
   )
 }
