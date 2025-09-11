@@ -97,6 +97,14 @@ export function generateReviewURL(branchId: string, baseUrl?: string): string {
 }
 
 /**
+ * 공개 가계 정보 페이지 URL 생성 (로그인 없이 접근 가능)
+ */
+export function generatePublicStoreURL(branchId: string, baseUrl?: string): string {
+  const base = baseUrl || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000')
+  return `${base}/store/${branchId}`
+}
+
+/**
  * QR 코드 다운로드
  */
 export function downloadQRCode(dataURL: string, filename: string = 'qrcode.png'): void {

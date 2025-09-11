@@ -67,34 +67,8 @@ function QRScanContent() {
   const handleStartReview = async () => {
     if (!branch) return
     
-    try {
-      // 디바이스 고유 ID 생성 (간단한 구현)
-      const deviceId = `device_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-      
-      // 사용자 자동 생성
-      const response = await fetch('/api/user/auto-create', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          deviceId: deviceId,
-          branchId: branch.id
-        }),
-      })
-
-      if (!response.ok) {
-        throw new Error('사용자 생성에 실패했습니다.')
-      }
-
-      const data = await response.json()
-      
-      // 리뷰 작성 페이지로 이동 (지점 ID와 사용자 ID 포함)
-      router.push(`/review/write?branch_id=${branch.id}&user_id=${data.user.id}`)
-    } catch (error) {
-      console.error('사용자 생성 오류:', error)
-      setError('사용자 생성 중 오류가 발생했습니다.')
-    }
+    // 공개 가계 정보 페이지로 리다이렉트
+    router.push(`/store/${branch.id}`)
   }
 
   if (loading) {

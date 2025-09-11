@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { generateQRCodeDataURL, generateReviewURL, downloadQRCode, openQRCodeInNewWindow } from '@/lib/qrcode'
+import { generateQRCodeDataURL, generatePublicStoreURL, downloadQRCode, openQRCodeInNewWindow } from '@/lib/qrcode'
 import { Branch } from '@/types/database'
 
 interface QRCodeManagerProps {
@@ -23,7 +23,7 @@ export default function QRCodeManager({ branch, onQRCodeGenerated }: QRCodeManag
     setError('')
 
     try {
-      const reviewURL = generateReviewURL(branch.id)
+      const reviewURL = generatePublicStoreURL(branch.id)
       const dataURL = await generateQRCodeDataURL(reviewURL, {
         width: 256,
         margin: 2,
@@ -56,7 +56,7 @@ export default function QRCodeManager({ branch, onQRCodeGenerated }: QRCodeManag
   }
 
   const copyURL = () => {
-    const reviewURL = generateReviewURL(branch.id)
+    const reviewURL = generatePublicStoreURL(branch.id)
     navigator.clipboard.writeText(reviewURL).then(() => {
       alert('URL이 클립보드에 복사되었습니다.')
     }).catch(() => {

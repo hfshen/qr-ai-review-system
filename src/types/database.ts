@@ -63,13 +63,18 @@ export interface ReviewKeyword {
 
 export interface Review {
   id: string
-  user_id: string
+  user_id?: string | null
   branch_id: string
   platform_id?: number
-  rating: number
+  rating: number | string
   selected_keyword_id?: number
   ai_content?: string
   final_content?: string
+  content?: string
+  keywords?: number[]
+  images?: string[]
+  reviewer_name?: string
+  reviewer_email?: string
   status: 'draft' | 'published' | 'failed'
   published_at?: string
   created_at: string
